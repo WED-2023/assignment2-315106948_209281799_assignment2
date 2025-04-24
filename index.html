@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spaceships Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>Starship Game Title</h1>
+    </header>
+    <menu>
+        # navigation menu to the different pages
+        <nav>
+            <ul>
+                <li><a href="#" data-target="welcome_page">Welcome</a></li>
+                <li><a href="#" data-target="register_page">Register</a></li>
+                <li><a href="#" data-target="login_page">Login</a></li>
+                <li><a href="#" data-target="about_page">About</a></li>
+            </ul>
+        </nav>
+    </menu>
+    <content>  
+        <div id="welcome_page">
+            <h2>Welcome to the Spaceships Game! This is the Welcome page</h2>
+            <p>
+                <a href="https://your-portfolio1.github.io" target="_blank">Web1</a> |
+                <a href="https://your-portfolio2.github.io" target="_blank">Web2</a>
+            </p>
+          
+            <div class="welcome-buttons">
+                <button onclick="showScreen('register_page')">register</button>
+                <button onclick="showScreen('login_page')">login</button>
+            </div>
+        </div>
+        <div id="register_page">
+            <h2>Register</h2>
+            <form id="register_form">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <label for="password validation">Password:</label>
+                <input type="password" id="password validation" name="password" required>
+                <label for="firstname">First Name:</label>
+                <input type="text" id="firstname" name="firstname" required>
+                <label for="surname">Surname:</label>
+                <input type="text" id="surname" name="surname" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <label for="birthdate">Birthdate:</label>
+                <input type="date" id="birthdate" name="birthdate" required>
+                <button type="submit">Register</button>
+            </form>
+        </div>
+        <div id="login_page">
+            <h2>Login</h2>
+            <form id="login_form">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+        <!-- <button onclick="openAboutModal()">About</button> -->
+        <div id="about_page" class="modal" onclick="outsideClick(event)">
+            <h2>About the Game</h2>
+            <p>This game is a fun and interactive way to learn about spaceships and space travel.</p>
+        </div>
+        <div id="config_page">
+            <h2>Game Configuration</h2>
+            <form id="config_form">
+                <label for="shoot_key">Choose shooting key:</label>
+                <input type="text" id="shoot_key" name="shoot_key" maxlength="1" placeholder="e.g. A, S, D or space">
+                <small>Use a single letter or type "space".</small>
+        
+                <br><br>
+                <label for="game_time">Game Time (minutes):</label>
+                <input type="number" id="game_time" name="game_time" min="2" value="2">
+        
+                <br><br>
+                <label for="ship_color">Spaceship color:</label>
+                <input type="color" id="ship_color" name="ship_color" value="#00ff00">
+        
+                <br><br>
+                <button type="submit">Start Game</button>
+            </form>
+        </div>
+        
+        <div id="game_page">
+            <h2>Spaceships Game</h2>
+            <p>Game content goes here.</p>
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+        </div>
+    </content>
+    <footer>
+        <p>&copy; 2025 My Web Page</p>
+    </footer>
+</body>
+</html>

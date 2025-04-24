@@ -1,0 +1,25 @@
+content > div {
+    display: none;
+}
+content > div.active {
+    display: block;
+}
+
+#gameCanvas {
+    background-color: white;
+    display: block;
+    margin: 0 auto;
+    border: 2px solid black;
+}
+
+#game_page h2 {
+    text-align: center;
+    color: black;
+}
+
+body {
+    background-color: #c4adad;
+    color: black;
+    font-family: sans-serif;
+}
+
