@@ -12,6 +12,12 @@ content > div.active {
     border: 2px solid black;
 }
 
+canvas {
+    border: 2px solid black;
+    display: block;
+    margin: 0 auto;
+}
+
 #game_page h2 {
     text-align: center;
     color: black;
