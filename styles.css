@@ -1,9 +1,138 @@
-content > div {
-    display: none;
+:root {
+    --primary-color: #ff00d9;  /* Neon Cyan */
+    --secondary-color: #ffffff; /* White */
+    --background-color: #000000; /* Black */
+    --font-family: 'Orbitron', sans-serif;
+    --heading-size: 48px;
+    --text-size: 18px;
 }
-content > div.active {
-    display: block;
+
+#content {
+    /* display: flex; */
+    position: relative;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px; /* space under title */
+    min-height: calc(100vh - 140px); /* adjust based on your header+menu */
 }
+
+
+#content > div {
+    position: absolute;
+    /* display: none; */
+    top: 0;
+    left: 50%;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: 
+        opacity 0.5s ease, 
+        transform 0.5s ease, 
+        visibility 0s linear 0.5s;
+
+
+    /* Consistent layout */
+    width: 80%;
+    max-width: 700px;
+    padding: 30px;
+    margin-top: 0;     
+    box-sizing: border-box;
+
+    /* Glassmorphism styling */
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    color: white;
+    font-family: var(--font-family);
+
+    /*  --- border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle edge */
+}
+
+#content > div.active {
+    /* Show and animate in */
+    /* display: block; */
+    visibility: visible;
+    opacity: 1;
+    transform: translate(-50%, 0px);
+    transition-delay: 0s;
+    
+}
+
+
+
+/* Fixed top menu */
+#menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    background: none; 
+    font-family: 'Orbitron', sans-serif;
+}
+
+/* Nav list style */
+#menu nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    padding: 1em 0;
+}
+
+/* Individual menu items */
+#menu nav ul li {
+    margin: 0 20px;
+}
+
+/* Links */
+#menu nav ul li a {
+    text-decoration: none;
+    font-size: 18px;
+    color: #c0c2d1; /* cosmic white */
+    padding: 8px 12px;
+    border-radius: 5px;
+    transition: background 0.3s, color 0.3s;
+}
+
+#menu nav ul li a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #00ffff; /* neon cyan glow on hover */
+}
+
+
+/* Header Styling */
+#gameHeader {
+    margin-top: 80px; /* Push down to leave space under the menu */
+    margin-bottom: 10px;
+    text-align: center;
+    padding: 0;
+}
+
+/* Title Styling */
+#gameTitle {
+    font-size: 60px;
+    font-weight: bold;
+    color: #ff00d9; /* Neon cyan */
+    text-shadow: 0 0 10px #ff00d9, 0 0 20px #ff00d9, 0 0 30px #ff00d9;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 4px;
+    animation: pulseGlow 2s infinite alternate;
+}
+
+@keyframes pulseGlow {
+    0% {
+        text-shadow: 0 0 10px #ff00d9, 0 0 20px #ff00d9, 0 0 30px #00ffff;
+    }
+    100% {
+        text-shadow: 0 0 20px #ff00d9, 0 0 40px #ff00d9, 0 0 60px #ff00d9;
+    }
+}
+
 
 #gameCanvas {
     background-color: white;
@@ -20,7 +149,9 @@ content > div.active {
 body {
     margin: 0;
     padding: 0;
-    font-family: sans-serif;
+    font-family: var(--font-family);
+    font-size: var(--text-size);
+    line-height: 1.6;
     color: black;
 
     background-image: url('images/pexels-esan-2085998.jpg'); /* path to your image */
@@ -28,4 +159,80 @@ body {
     background-repeat: no-repeat;   /* Prevent tiling */
     background-attachment: fixed;   /* Keep fixed while scrolling */
     background-position: center;    /* Center the image */
+} 
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--secondary-color);
+    font-family: var(--font-family);
+    font-weight: bold;
+    margin-top: 0;
+}
+
+h1 {
+    font-size: var(--heading-size);
+    text-align: center;
+    text-shadow: 0 0 10px var(--secondary-color);
+}
+
+h2 {
+    font-size: 25px;
+}
+
+p {
+    font-size: var(--text-size);
+    color: var(--secondary-color);
+}
+/* 
+button {
+    font-family: var(--font-family);
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+button:hover {
+    background-color: #00cccc;
+    transform: scale(1.05);
+} */
+
+button {
+    font-family: var(--font-family);
+    font-size: 18px;
+    color: var(--background-color);
+    background-color: var(--primary-color);
+    
+    padding: 10px 20px;
+    border: none;
+    border-radius: 0; /* flat look */
+    
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    text-transform: none;
+
+    margin: 0;
+    line-height: inherit;
+    overflow: visible;
+}
+
+button:hover {
+    background-color: #00cccc;
+    transform: scale(1.05);
+}
+
+button:focus {
+    outline: 1px dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+}
+
+/* Also apply reset styles to form inputs */
+button, input, optgroup, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    margin: 0;
 }

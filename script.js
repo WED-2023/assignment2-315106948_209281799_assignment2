@@ -36,12 +36,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const user = {
             username: document.getElementById('username').value,
-            password: document.getElementById('password').value,
+            password: document.getElementById('register_password').value,
+            confirmPassword: document.getElementById('confirm_password').value,
             firstname: document.getElementById('firstname').value,
             surname: document.getElementById('surname').value,
             email: document.getElementById('email').value,
             birthdate: document.getElementById('birthdate').value
         };
+
+        const password = document.getElementById('register_password');
+        const confirmPassword = document.getElementById('confirm_password');
+        
+        // Clear previous custom messages
+        password.setCustomValidity('');
+        confirmPassword.setCustomValidity('');
+        
+        // Check password match
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Passwords do not match.');
+            confirmPassword.reportValidity(); // shows the bubble
+            return;
+        }
+
+        // Check if username/email already exist
+        const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
+        if (storedUser && (storedUser.username === user.username || storedUser.email === user.email)) {
+            document.getElementById('register_username').setCustomValidity('Username or email already exists.');
+            document.getElementById('register_username').reportValidity();
+            return;
+        }
 
         // Save to localStorage
         localStorage.setItem('registeredUser', JSON.stringify(user));
@@ -76,6 +99,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Add dailog event listener to the about button
+    // Get references to the dialog and the About link
+    const aboutDialog = document.getElementById('about_page');
+    const aboutLink = document.getElementById('about_link');
+    const closeDialogBtn = document.getElementById('closeDialogBtn');
+    console.log(aboutDialog, aboutLink, closeDialogBtn);
+
+    // Open the dialog when the About link is clicked
+    aboutLink.addEventListener('click', function(event) {
+        event.preventDefault();  // Prevent default action of the link
+        console.log('About link clicked');
+        aboutDialog.showModal();  // Open the dialog
+    });
+
+    // Close the dialog when the Close X button is clicked
+    closeDialogBtn.addEventListener('click', function() {
+        aboutDialog.close();  // Close the dialog
+    });
+
+    // Close the dialog when clicking outside (on the backdrop)
+    aboutDialog.addEventListener('click', function(event) {
+        if (event.target === aboutDialog) {
+            aboutDialog.close();  // Close the dialog if click is on the backdrop
+        }
+    });
 });
 
 // ------------------------------ Game logic ------------------------------

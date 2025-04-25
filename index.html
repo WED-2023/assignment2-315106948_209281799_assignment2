@@ -6,28 +6,29 @@
     <title>Spaceships Game</title>
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <h1>Starship Game Title</h1>
+    
+    <header id="gameHeader">
+        <h1 id="gameTitle">Starship Game Title</h1>
     </header>
-    <menu>
-        # navigation menu to the different pages
+    <menu id="menu">
         <nav>
             <ul>
                 <li><a href="#" data-target="welcome_page">Welcome</a></li>
                 <li><a href="#" data-target="register_page">Register</a></li>
                 <li><a href="#" data-target="login_page">Login</a></li>
-                <li><a href="#" data-target="about_page">About</a></li>
+                <li><a href="#" id="about_link">About</a></li>
             </ul>
         </nav>
     </menu>
-    <content>  
+    
+    <div id="content">
         <div id="welcome_page">
             <h2>Welcome to the Spaceships Game! This is the Welcome page</h2>
             <p>
-                <a href="https://your-portfolio1.github.io" target="_blank">Web1</a> |
-                <a href="https://your-portfolio2.github.io" target="_blank">Web2</a>
+                <a href="https://wed-2023.github.io/assignment2-315106948_209281799_assignment2/" target="_blank">Game site link</a>
             </p>
           
             <div class="welcome-buttons">
@@ -39,15 +40,21 @@
             <h2>Register</h2>
             <form id="register_form">
                 <label for="username">Username:</label>
-                <input type="text" id="register susername" name="username" required>
+                <!-- <input type="text" id="register susername" name="username" required> -->
+                <input type="text" id="register_username" name="username">
+
                 <label for="password">Password:</label>
-                <input type="password" id="register password" name="password" required>
+                <!-- <input type="password" id="register password" name="password" required> -->
+                <input type="password" id="register_password" name="password" required pattern="(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}" title="At least 8 characters with letters and numbers">
+
                 <label for="password validation">Password:</label>
-                <input type="password" id="password validation" name="password" required>
+                <!-- <input type="password" id="password validation" name="password" required> -->
+                <input type="password" id="confirm_password" name="confirm_password" required>
+
                 <label for="firstname">First Name:</label>
-                <input type="text" id="firstname" name="firstname" required>
+                <input type="text" id="firstname" name="firstname" required pattern="[A-Za-z]+" title="Only letters allowed">
                 <label for="surname">Surname:</label>
-                <input type="text" id="surname" name="surname" required>
+                <input type="text" id="surname" name="surname" required pattern="[A-Za-z]+" title="Only letters allowed">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
                 <label for="birthdate">Birthdate:</label>
@@ -66,10 +73,12 @@
             </form>
         </div>
         <!-- <button onclick="openAboutModal()">About</button> -->
-        <div id="about_page" class="modal" onclick="outsideClick(event)">
+        <dialog id="about_page" class="modal">
             <h2>About the Game</h2>
             <p>This game is a fun and interactive way to learn about spaceships and space travel.</p>
-        </div>
+            <!-- <button id="closeDialogBtn">Close</button> -->
+            <button class="close-x" id="closeDialogBtn">&times;</button> <!-- Close X -->
+        </dialog>
         <div id="config_page">
             <h2>Game Configuration</h2>
             <form id="config_form">
@@ -95,7 +104,7 @@
             <p>Game content goes here.</p>
             <canvas id="gameCanvas" width="800" height="600"></canvas>
         </div>
-    </content>
+    </div>
     <footer>
         <p>&copy; 2025 My Web Page</p>
     </footer>
