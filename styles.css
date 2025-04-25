@@ -12,20 +12,20 @@ content > div.active {
     border: 2px solid black;
 }
 
-canvas {
-    border: 2px solid black;
-    display: block;
-    margin: 0 auto;
-}
-
 #game_page h2 {
     text-align: center;
     color: black;
 }
 
 body {
-    background-color: #c4adad;
-    color: black;
+    margin: 0;
+    padding: 0;
     font-family: sans-serif;
-}
+    color: black;
 
+    background-image: url('images/pexels-esan-2085998.jpg'); /* path to your image */
+    background-size: cover;         /* Stretch to cover screen */
+    background-repeat: no-repeat;   /* Prevent tiling */
+    background-attachment: fixed;   /* Keep fixed while scrolling */
+    background-position: center;    /* Center the image */
+}
