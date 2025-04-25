@@ -8,37 +8,28 @@
 }
 
 #content {
-    /* display: flex; */
-    position: relative;
+    display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    margin-top: 20px; /* space under title */
-    min-height: calc(100vh - 140px); /* adjust based on your header+menu */
+    margin-top: 20px;
+    padding-top: 20px;
+    position: relative;
+    min-height: calc(100vh - 140px); /* מתאים לגובה המסך פחות הכותרת והתפריט */
 }
 
 
 #content > div {
-    position: absolute;
-    /* display: none; */
-    top: 0;
-    left: 50%;
+    display: none;
     opacity: 0;
     transform: translateY(20px);
-    transition: 
-        opacity 0.5s ease, 
-        transform 0.5s ease, 
-        visibility 0s linear 0.5s;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    position: relative;
 
-
-    /* Consistent layout */
     width: 80%;
     max-width: 700px;
     padding: 30px;
-    margin-top: 0;     
+    margin-top: 10px;
     box-sizing: border-box;
-
-    /* Glassmorphism styling */
     background: rgba(255, 255, 255, 0.08);
     border-radius: 20px;
     backdrop-filter: blur(15px);
@@ -47,19 +38,12 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     text-align: center;
     color: white;
-    font-family: var(--font-family);
-
-    /*  --- border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle edge */
 }
 
 #content > div.active {
-    /* Show and animate in */
-    /* display: block; */
-    visibility: visible;
+    display: block;
     opacity: 1;
-    transform: translate(-50%, 0px);
-    transition-delay: 0s;
-    
+    transform: translateY(0px);
 }
 
 
@@ -182,7 +166,7 @@ p {
     font-size: var(--text-size);
     color: var(--secondary-color);
 }
-/* 
+
 button {
     font-family: var(--font-family);
     background-color: var(--primary-color);
@@ -198,8 +182,8 @@ button {
 button:hover {
     background-color: #00cccc;
     transform: scale(1.05);
-} */
-
+}
+/* 
 button {
     font-family: var(--font-family);
     font-size: 18px;
@@ -210,7 +194,7 @@ button {
     border: none;
     border-radius: 0; /* flat look */
     
-    cursor: pointer;
+    /* cursor: pointer;
     transition: background-color 0.3s, transform 0.3s;
     text-transform: none;
 
@@ -229,10 +213,9 @@ button:focus {
     outline: 5px auto -webkit-focus-ring-color;
 }
 
-/* Also apply reset styles to form inputs */
 button, input, optgroup, select, textarea {
     font-family: inherit;
     font-size: inherit;
     line-height: inherit;
     margin: 0;
-}
+}  */
