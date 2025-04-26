@@ -25,19 +25,32 @@
             </ul>
         </nav>
     </menu>
-    
+
+
     <div id="content">
         <div id="welcome_page">
-            <h2>Welcome to the Spaceships Game! This is the Welcome page</h2>
+            <h2>Welcome to the Spaceships Game!</h2>
+
+            <!-- Game site link -->
             <p>
-                <a href="https://wed-2023.github.io/assignment2-315106948_209281799_assignment2/" target="_blank">Game site link</a>
+                <a href="https://wed-2023.github.io/assignment2-315106948_209281799_assignment2/" target="_blank">
+                    Visit the Game Website
+                </a>
             </p>
-          
-            <div class="welcome-buttons">
-                <button onclick="showScreen('register_page')">register</button>
-                <button onclick="showScreen('login_page')">login</button>
-            </div>
+            <!-- Logo -->
+            <img  id="logo" src="images/logo.png" alt="Game Logo" >
+        
+            <!-- Name and ID -->
+            <p><strong>Daniel Nisanov - 209281799 </strong></p>
+            <p><strong>Yuval Aviv -315106948 </strong></p>
+        
+            <!-- Two big buttons -->
+            <div class="welcome-buttons" style="margin-top: 30px;">
+                <button onclick="showScreen('register_page')" style="margin: 10px;">Register</button>
+                <button onclick="showScreen('login_page')" style="margin: 10px;">Login</button>
+            </div>
         </div>
+        
         <div id="register_page">
             <h2>Register</h2>
             <form id="register_form">
@@ -114,22 +127,36 @@
                 </div>
                 <!-- <br><br> -->
                 <div class="form-line">
-                    <label for="ship_color">Spaceship color:</label>
-                    <input type="color" id="ship_color" name="ship_color" value="#00ff00">
+                <div id="ship_selection">
+                    <label>Select your spaceship:</label>
+                    <div class="ship-options">
+                      <img src="images/spaceship1.png" class="ship-choice" data-ship="images/spaceship1.png">
+                      <img src="images/spaceship2.png" class="ship-choice" data-ship="images/spaceship2.png">
+                      <img src="images/spaceship3.png" class="ship-choice" data-ship="images/spaceship3.png">
+                      <img src="images/spaceship4.png" class="ship-choice" data-ship="images/spaceship4.png">
+                      <img src="images/spaceship5.png" class="ship-choice" data-ship="images/spaceship5.png">
+                    </div>
+                  </div>
                 </div>
-                <!-- <br><br> -->
                 <button type="submit">Start Game</button>
             </form>
         </div>
         
-        <div id="game_page">
+        <div id="game_page" >
             <h2>Spaceships Game</h2>
-            <p>Game content goes here.</p>
-            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <!-- <p>Game content goes here.</p> -->
+            <canvas id="gameCanvas" width="700%" height="400"></canvas>
+            <button id="restartBtn" style="display:none; margin-top: 20px;">Restart Game</button>
         </div>
     </div>
-    <footer>
-        <p>&copy; 2025 My Web Page</p>
+    
+    <footer id="footer">
+        <div class="footer-content">
+            <p>Spaceships Game © 2025. </p><p> as part of a Web Programming course.</p>
+           <p>Contact: <a href="mailto:nisdani@post.bgu.ac.il">nisdani@post.bgu.ac.il</a> 
+              |   <a href="mailto:avivyuv@post.bgu.ac.il"> avivyuv@post.bgu.ac.il</a>
+            </p>
+        </div>
     </footer>
 </body>
 </html>

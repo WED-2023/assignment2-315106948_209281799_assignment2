@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetSection) {
             targetSection.classList.add('active');
         }
+        if (targetId !== 'game_page') {
+            resetGame();
+        }
     }
     // Add click event listeners to all links
     links.forEach(link => {
@@ -78,6 +81,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+let selectedShipImage = 'images/spaceship1.png'; // Default selection
+
+document.querySelectorAll('.ship-choice').forEach(img => {
+    img.addEventListener('click', () => {
+        // Remove 'selected' class from all
+        document.querySelectorAll('.ship-choice').forEach(img => img.classList.remove('selected'));
+        // Add 'selected' class to clicked image
+        img.classList.add('selected');
+        // Save selected ship
+        selectedShipImage = img.getAttribute('data-ship');
+    });
+});
+
+
 // ------------------------------ Game logic ------------------------------
 // Default config
 let gameConfig = {
@@ -113,21 +130,31 @@ document.getElementById('config_form').addEventListener('submit', function (e) {
         return;
     }
 
-    const color = document.getElementById('ship_color').value;
+    // const color = document.getElementById('ship_color').value;
 
     // Save config
     gameConfig = {
         shootKey: key,
         timeLimit: time,
-        shipColor: color
+        // shipColor: color
     };
 
     // Apply config
-    player.color = color;
+    // player.color = color;
+    player.shipImageSrc = selectedShipImage;
+
 
     showScreen('game_page');
     setupGame(); // start the game when config is done
 });
+
+// Handle Restart Button
+document.getElementById('restartBtn').addEventListener('click', () => {
+    document.getElementById('restartBtn').style.display = 'none';
+    resetGame();
+    setupGame();
+});
+
 
 // ------------------------------
 // Game variables
@@ -150,6 +177,13 @@ let maxSpeedBoosts = 4;
 let boostInterval = 10000; // every 5 seconds
 let lastBoostTime = Date.now();
 let gameOver = false;
+let playerShipImg = null;  // Global image object
+
+const goodBulletImg = new Image();
+goodBulletImg.src = 'images/good_bullet.png';
+
+const playerHitSound = new Audio('sounds/player_hit.mp3');
+
 
 // enemy variables
 let enemies = [];
@@ -161,6 +195,14 @@ let enemySpacing = 20;
 let enemyDirection = 1; // 1 = right, -1 = left
 let enemySpeed = 1;
 
+const badShipImg = new Image();
+badShipImg.src = 'images/badShip.png';
+
+const badBulletImg = new Image();
+badBulletImg.src = 'images/bad_bullet.png';
+
+const hitEnemySound = new Audio('sounds/enemy_hit.mp3');
+
 let enemyBullets = [];
 let lastShotTime = 0;
 let bulletCooldown = 1000; // milliseconds
@@ -170,16 +212,35 @@ let speedupFactor = 1;
 let startTime = null;
 let timeLeft = gameConfig.timeLimit * 60; // in seconds
 
+//sounds
+const winGameSound = new Audio('sounds/win_game.mp3'); 
+const gameOverSound = new Audio('sounds/game_over.mp3');
+const backgroundMusic = new Audio('sounds/background_music.mp3');
+backgroundMusic.loop = true; 
+backgroundMusic.volume = 0.5;
+
+
+
 function initEnemies() {
     enemies = [];
+    const baseWidth = 40; 
+    const baseHeight = 25;
+    const spacing = enemySpacing; 
     for (let row = 0; row < enemyRows; row++) {
+        let scaleFactor = 1 + (row * 0.3); 
+        let currentWidth = baseWidth * scaleFactor;
+        let currentHeight = baseHeight * scaleFactor;
+        
+        const totalRowWidth = enemyCols * currentWidth + (enemyCols - 1) * spacing;
+        const startX = (canvas.width - totalRowWidth) / 2;
+
         for (let col = 0; col < enemyCols; col++) {
             enemies.push({
-                x: 100 + col * (enemyWidth + enemySpacing),
-                y: 50 + row * (enemyHeight + enemySpacing),
-                width: enemyWidth,
-                height: enemyHeight,
-                row: row // <== track row number (0 to 3)
+                x: startX + col * (currentWidth + spacing),
+                y: 50 + row * (currentHeight + spacing),
+                width: currentWidth,
+                height: currentHeight,
+                row: row 
             });
         }
     }
@@ -202,8 +263,8 @@ function shootFromRandomEnemy() {
     enemyBullets.push({
         x: randomEnemy.x + randomEnemy.width / 2 - 3,
         y: randomEnemy.y + randomEnemy.height,
-        width: 6,
-        height: 15,
+        width: 20,
+        height: 20,
         speed: 4
     });
 }
@@ -219,12 +280,14 @@ function checkCollision(rect1, rect2) {
 
 function setupGame() {
     startTime = Date.now();
-
+    backgroundMusic.play();
+    playerShipImg = new Image();
+    playerShipImg.src = player.shipImageSrc || 'images/spaceship1.png'; // Default fallback
     // Keyboard input
     document.addEventListener('keydown', (e) => keys[e.key] = true);
     document.addEventListener('keyup', (e) => keys[e.key] = false);
+    
     initEnemies();
-
     gameLoop(); // Start the game
 }
 
@@ -235,8 +298,8 @@ function update() {
         playerBullets.push({
             x: player.x + player.width / 2 - 3,
             y: player.y,
-            width: 6,
-            height: 15,
+            width: 20,
+            height: 20,
             speed: -4
         });
         player.justShot = true;
@@ -249,6 +312,7 @@ function update() {
     const allowedRight = canvas.width - player.width;
     const allowedTop = 0.6*canvas.height; // 40% of the screen
     const allowedBottom = canvas.height - player.height;
+
 
     if (keys["ArrowLeft"] && player.x > allowedLeft) {
         player.x -= moveSpeed;
@@ -302,6 +366,7 @@ function update() {
     // Check for collisions between player and enemy bullets
     for (let bullet of enemyBullets) {
         if (checkCollision(bullet, player)) {
+            playerHitSound.play();
             console.log("Player hit!");
             // damage logic
             lives--;
@@ -336,6 +401,7 @@ function update() {
     for (let bullet of playerBullets) {
         for (let enemy of enemies) {
             if (checkCollision(bullet, enemy)) {
+                hitEnemySound.play(); 
                 console.log("Enemy hit!");
                 // Calculate score by row
                 const row = enemy.row;
@@ -366,59 +432,104 @@ function update() {
 }
 
 function draw() {
+    // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Show lives
-    ctx.fillStyle = "black";
-    ctx.font = "20px Arial";
-    ctx.fillText(`Lives: ${lives}`, 10, 20);
+    ctx.fillStyle = "white";
+    ctx.font = "20px Rajdhani";
+    ctx.bold = true;
+    ctx.fillText(`Lives: ${lives}`, 20, 20);
 
     // Show time left
-    ctx.fillStyle = "black";
-    ctx.font = "20px Arial";
-    ctx.fillText(`Time: ${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`, canvas.width - 120, 20);
+    ctx.fillStyle = "white";
+    ctx.font = "20px Rajdhani";
+    ctx.bold = true;
+    ctx.fillText(`Time: ${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`, canvas.width - 100, 20);
 
+    
     // Show score
-    ctx.fillStyle = "black";
-    ctx.font = "20px Arial";
-    ctx.fillText(`Score: ${score}`, 10, 45);
+    ctx.fillStyle = "white";
+    ctx.font = "20px Rajdhani";
+    ctx.bold = true;
+    ctx.fillText(`Score: ${score}`, 20, 40);
 
     // Draw the player spaceship (rectangle for now)
-    ctx.fillStyle = player.color;
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+    const playerShipImg = new Image();
+    playerShipImg.src = player.shipImageSrc || 'images/spaceship1.png'; // Default fallback
 
-    ctx.fillStyle = "red";
+    ctx.drawImage(playerShipImg, player.x, player.y, player.width, player.height);
+
     for (let enemy of enemies) {
-        ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+        ctx.drawImage(badShipImg, enemy.x, enemy.y, enemy.width, enemy.height);
+    }
+    
+    // Draw player bullets
+    for (let bullet of playerBullets) {
+        ctx.drawImage(goodBulletImg, bullet.x, bullet.y, bullet.width, bullet.height);
     }
 
     // Draw enemy bullets
-    ctx.fillStyle = "yellow";
     for (let bullet of enemyBullets) {
-        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+        ctx.drawImage(badBulletImg, bullet.x, bullet.y, bullet.width, bullet.height);
     }
-    // Draw player bullets
-    ctx.fillStyle = "blue";
-    for (let bullet of playerBullets) {
-        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+    
+
+    // Win/Lose conditionsz
+    if (!gameOver) {
+        if (lives <= 0) {
+            gameOverSound.play();
+            ctx.fillStyle = "red";
+            ctx.font = "bold 60px Orbitron";
+            ctx.textAlign = "center";
+            ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+            document.getElementById('restartBtn').style.display = 'inline-block';
+            gameOver = true;
+        } 
+        
+        else if (enemies.length === 0) {
+            winGameSound.play();
+            ctx.fillStyle = "green";
+            ctx.font = "bold 60px Orbitron";
+            ctx.textAlign = "center";
+            ctx.fillText("YOU WIN!", canvas.width / 2, canvas.height / 2);
+            document.getElementById('restartBtn').style.display = 'inline-block';
+            gameOver = true;
+        }
+    }
+    
+}
+
+// Reset game function
+function resetGame() {
+    // Stop background music if playing
+    if (backgroundMusic && !backgroundMusic.paused) {
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
     }
 
-    // Win/Lose conditions
-    // Win condition
-    if (enemies.length === 0) {
-        ctx.fillStyle = "green";
-        ctx.font = "40px Arial";
-        ctx.fillText("YOU WIN!", canvas.width / 2 - 100, canvas.height / 2);
-        gameOver = true;
-    }
-    // Game over condition
-    if (lives <= 0) {
-        ctx.fillStyle = "red";
-        ctx.font = "40px Arial";
-        ctx.fillText("GAME OVER", canvas.width / 2 - 120, canvas.height / 2);
-        gameOver = true;
-    }
+    // Clear all pressed keys
+    keys = {};
+
+    // Reset game-related variables
+    gameOver = false;
+    lives = 3;
+    score = 0;
+    playerBullets = [];
+    enemyBullets = [];
+    enemies = [];
+    speedBoosts = 0;
+    lastBoostTime = Date.now();
+    timeLeft = gameConfig.timeLimit * 60; // Reset timer
+
+    // Reset player position
+    player.x = Math.random() * (canvas.width - player.width);
+    player.y = canvas.height - player.height;
+
+    // Clear canvas
+    // ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
+
 
 function gameLoop() {
     update();
@@ -426,6 +537,7 @@ function gameLoop() {
     if (!gameOver) {
         requestAnimationFrame(gameLoop);
     }
+
 }
 
 // ------------------------------
