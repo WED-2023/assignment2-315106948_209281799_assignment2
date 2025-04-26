@@ -11,8 +11,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 20px;
-    padding-top: 20px;
+    margin-top: 10px;
+    padding-top: 2px;
     position: relative;
     min-height: calc(100vh - 140px); /* מתאים לגובה המסך פחות הכותרת והתפריט */
 }
@@ -27,8 +27,8 @@
 
     width: 80%;
     max-width: 700px;
-    padding: 30px;
-    margin-top: 10px;
+    padding: 2px;
+    margin-top: 2px;
     box-sizing: border-box;
     background: rgba(255, 255, 255, 0.08);
     border-radius: 20px;
@@ -70,7 +70,7 @@
 
 /* Individual menu items */
 #menu nav ul li {
-    margin: 0 20px;
+    margin: 0 10px;
 }
 
 /* Links */
@@ -92,7 +92,7 @@
 /* Header Styling */
 #gameHeader {
     margin-top: 80px; /* Push down to leave space under the menu */
-    margin-bottom: 10px;
+    margin-bottom: 0px;
     text-align: center;
     padding: 0;
 }
@@ -183,39 +183,60 @@ button:hover {
     background-color: #00cccc;
     transform: scale(1.05);
 }
-/* 
-button {
-    font-family: var(--font-family);
-    font-size: 18px;
-    color: var(--background-color);
-    background-color: var(--primary-color);
-    
-    padding: 10px 20px;
-    border: none;
-    border-radius: 0; /* flat look */
-    
-    /* cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
-    text-transform: none;
 
-    margin: 0;
-    line-height: inherit;
-    overflow: visible;
+form {
+    display: flex;
+    flex-direction: column;
+    /* gap: 3px; */
+    text-align: left;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    align-items: center;
 }
 
-button:hover {
-    background-color: #00cccc;
-    transform: scale(1.05);
+form label {
+    /* display: inline-block; */
+    width: 150px; 
+    font-size: 16px;
+    color: var(--secondary-color);
+    margin-bottom: 1px;
+    /* margin-right: 100px; */
+    vertical-align: middle;
 }
 
-button:focus {
-    outline: 1px dotted;
-    outline: 5px auto -webkit-focus-ring-color;
+form input[type="text"],
+form input[type="password"],
+form input[type="email"],
+form input[type="date"],
+form input[type="number"],
+form input[type="color"] {
+    display: inline-block;
+    width: calc(100% - 170px); /* input width = total - label width - spacing */
+    vertical-align: middle;
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #000;
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-button, input, optgroup, select, textarea {
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
-    margin: 0;
-}  */
+form input:focus {
+    outline: none;
+    border-color: #00ffff;
+    box-shadow: 0 0 5px #00ffff;
+}
+
+form button[type="submit"] {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 80%;
+}
+
+form label + input {
+    /* display: inline-block; */
+    margin-bottom: 10px;
+}
