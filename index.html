@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+
 </head>
 <body>
     
@@ -39,36 +41,53 @@
         <div id="register_page">
             <h2>Register</h2>
             <form id="register_form">
-                <label for="username">Username:</label>
-                <!-- <input type="text" id="register susername" name="username" required> -->
-                <input type="text" id="register_username" name="username">
 
-                <label for="password">Password:</label>
-                <!-- <input type="password" id="register password" name="password" required> -->
-                <input type="password" id="register_password" name="password" required pattern="(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}" title="At least 8 characters with letters and numbers">
+                <div class="form-line">
+                    <label for="username">Username:</label>
+                    <!-- <input type="text" id="register susername" name="username" required> -->
+                    <input type="text" id="register_username" name="username">
+                </div>
+                <div class="form-line">
 
-                <label for="password validation">Password:</label>
-                <!-- <input type="password" id="password validation" name="password" required> -->
-                <input type="password" id="confirm_password" name="confirm_password" required>
-
-                <label for="firstname">First Name:</label>
-                <input type="text" id="firstname" name="firstname" required pattern="[A-Za-z]+" title="Only letters allowed">
-                <label for="surname">Surname:</label>
-                <input type="text" id="surname" name="surname" required pattern="[A-Za-z]+" title="Only letters allowed">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-                <label for="birthdate">Birthdate:</label>
-                <input type="date" id="birthdate" name="birthdate" required>
+                    <label for="password">Password:</label>
+                    <!-- <input type="password" id="register password" name="password" required> -->
+                    <input type="password" id="register_password" name="password" required pattern="(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}" title="At least 8 characters with letters and numbers">
+                </div>
+                <div class="form-line">
+                    <label for="password validation">Password Verification:</label>
+                    <!-- <input type="password" id="password validation" name="password" required> -->
+                    <input type="password" id="confirm_password" name="confirm_password" required>
+                </div>
+                <div class="form-line">
+                    <label for="firstname">First Name:</label>
+                    <input type="text" id="firstname" name="firstname" required pattern="[A-Za-z]+" title="Only letters allowed">
+                </div>
+                <div class="form-line">
+                    <label for="surname">Surname:</label>
+                    <input type="text" id="surname" name="surname" required pattern="[A-Za-z]+" title="Only letters allowed">
+                </div>
+                <div class="form-line">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-line">
+                    <label for="birthdate">Birthdate:</label>
+                    <input type="date" id="birthdate" name="birthdate" required>
+                </div>
                 <button type="submit">Register</button>
             </form>
         </div>
         <div id="login_page">
             <h2>Login</h2>
             <form id="login_form">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
+                <div class="form-line">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-line">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
                 <button type="submit">Login</button>
             </form>
         </div>
@@ -82,19 +101,23 @@
         <div id="config_page">
             <h2>Game Configuration</h2>
             <form id="config_form">
-                <label for="shoot_key">Choose shooting key:</label>
-                <input type="text" id="shoot_key" name="shoot_key" maxlength="5" placeholder="e.g. A, S, D or space" value="space">
+                <div class="form-line">
+                    <label for="shoot_key">Choose shooting key:</label>
+                    <input type="text" id="shoot_key" name="shoot_key" maxlength="5" placeholder="e.g. A, S, D or space" value="space">
+                </div>
                 <small>Use a single letter or type "space".</small>
-        
-                <br><br>
-                <label for="game_time">Game Time (minutes):</label>
-                <input type="number" id="game_time" name="game_time" min="2" value="2">
-        
-                <br><br>
-                <label for="ship_color">Spaceship color:</label>
-                <input type="color" id="ship_color" name="ship_color" value="#00ff00">
-        
-                <br><br>
+
+                <!-- <br><br> -->
+                <div class="form-line">
+                    <label for="game_time">Game Time (minutes):</label>
+                    <input type="number" id="game_time" name="game_time" min="2" value="2">
+                </div>
+                <!-- <br><br> -->
+                <div class="form-line">
+                    <label for="ship_color">Spaceship color:</label>
+                    <input type="color" id="ship_color" name="ship_color" value="#00ff00">
+                </div>
+                <!-- <br><br> -->
                 <button type="submit">Start Game</button>
             </form>
         </div>
