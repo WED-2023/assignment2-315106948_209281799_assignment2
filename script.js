@@ -14,6 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetSection) {
             targetSection.classList.add('active');
         }
+        // If we're leaving the game screen, stop everything
+        if (targetId !== 'game_page' && gameActive) {
+            cancelAnimationFrame(gameFrameId);
+            gameActive = false;
+            keys = {}; // stop stuck key presses
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
     }
     // Add click event listeners to all links
     links.forEach(link => {
@@ -76,6 +83,67 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Add dailog event listener to the about button
+    // Get references to the dialog and the About link
+    const aboutDialog = document.getElementById('about_page');
+    const aboutLink = document.getElementById('about_link');
+    const closeDialogBtn = document.getElementById('closeDialogBtn');
+    console.log(aboutDialog, aboutLink, closeDialogBtn);
+
+    // Open the dialog when the About link is clicked
+    aboutLink.addEventListener('click', function(event) {
+        event.preventDefault();  // Prevent default action of the link
+        console.log('About link clicked');
+        aboutDialog.showModal();  // Open the dialog
+    });
+
+    // Close the dialog when the Close X button is clicked
+    closeDialogBtn.addEventListener('click', function() {
+        aboutDialog.close();  // Close the dialog
+    });
+
+    // Close the dialog when clicking outside (on the backdrop)
+    aboutDialog.addEventListener('click', function(event) {
+        if (event.target === aboutDialog) {
+            aboutDialog.close();  // Close the dialog if click is on the backdrop
+        }
+    });
+
+    // restart game logic
+    document.getElementById('restartGameBtn').addEventListener('click', () => {
+        showScreen('game_page');
+        cancelAnimationFrame(gameFrameId);
+        gameActive = false;
+        keys = {}; // stop stuck key presses
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        setupGame();
+    });
+
+    // Quit game logic
+    document.getElementById('quitGameBtn').addEventListener('click', () => {
+        showScreen('welcome_page');
+    });
+
+    // // Pause game logic
+    // document.getElementById('pauseGameBtn').addEventListener('click', () => {
+    //     if (!gamePaused) {
+    //         cancelAnimationFrame(gameFrameId);
+    //         gamePaused = true;
+    //         document.getElementById('pauseGameBtn').style.display = 'none';
+    //         document.getElementById('resumeGameBtn').style.display = 'inline-block';
+    //     }
+    // });
+    
+    // document.getElementById('resumeGameBtn').addEventListener('click', () => {
+    //     if (gamePaused) {
+    //         gamePaused = false;
+    //         gameFrameId = requestAnimationFrame(gameLoop);
+    //         document.getElementById('pauseGameBtn').style.display = 'inline-block';
+    //         document.getElementById('resumeGameBtn').style.display = 'none';
+    //     }
+    // });
+    
+
 });
 
 // ------------------------------ Game logic ------------------------------
@@ -135,10 +203,14 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 let player = { x: 400, y: 500, width: 40, height: 40, color: gameConfig.shipColor };
 let keys = {};
+let scoreHistoryList = []; // globally store history for drawing
+let gameActive = false;
+let gameFrameId = null;
+let gamePaused = false;
 
 // player variables
 // Set random start position for the player within allowed movement area (40% of canvas)
-const startX = Math.random()*(canvas.width-player.width);
+let startX = Math.random()*(canvas.width-player.width);
 player.x = startX;
 player.y = canvas.height - player.height ; // bottom of screen
 
@@ -169,6 +241,42 @@ let speedupFactor = 1;
 // timer variables
 let startTime = null;
 let timeLeft = gameConfig.timeLimit * 60; // in seconds
+
+function restartGameVariables() {
+    gameActive = false;
+    gameFrameId = null;
+
+    player.x = startX;
+    player.y = canvas.height - player.height ; // bottom of screen
+
+    playerBullets = [];
+    lives = 3;
+    score = 0;
+    speedBoosts = 0;
+    maxSpeedBoosts = 4;
+    boostInterval = 10000; // every 5 seconds
+    lastBoostTime = Date.now();
+    gameOver = false;
+
+    // enemy variables
+    enemies = [];
+    enemyRows = 4;
+    enemyCols = 5;
+    enemyWidth = 50;
+    enemyHeight = 30;
+    enemySpacing = 20;
+    enemyDirection = 1; // 1 = right, -1 = left
+    enemySpeed = 1;
+
+    enemyBullets = [];
+    lastShotTime = 0;
+    bulletCooldown = 1000; // milliseconds
+    speedupFactor = 1;
+
+    // timer variables
+    startTime = null;
+    timeLeft = gameConfig.timeLimit * 60; // in seconds
+}
 
 function initEnemies() {
     enemies = [];
@@ -217,14 +325,55 @@ function checkCollision(rect1, rect2) {
     );
 }
 
-function setupGame() {
-    startTime = Date.now();
+// Function to handle game score history
+function updateScoreHistory() {
+    const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
+    if (!storedUser || !storedUser.username) return;
 
-    // Keyboard input
-    document.addEventListener('keydown', (e) => keys[e.key] = true);
-    document.addEventListener('keyup', (e) => keys[e.key] = false);
+    const historyKey = `scoreHistory_${storedUser.username}`;
+    let history = JSON.parse(localStorage.getItem(historyKey)) || [];
+
+    const newEntry = { score: score, timestamp: new Date().toISOString() };
+    history.push(newEntry);
+    history.sort((a, b) => b.score - a.score); // high-to-low
+
+    localStorage.setItem(historyKey, JSON.stringify(history));
+
+    scoreHistoryList = history; // keep a copy to draw later
+    scoreHistoryList.latestTimestamp = newEntry.timestamp;
+}
+
+function keydownHandler(e) {
+    keys[e.key] = true;
+}
+function keyupHandler(e) {
+    keys[e.key] = false;
+}
+
+
+function setupGame() {
+    // Reset game flags and state
+    restartGameVariables();
+    startTime = Date.now();
+    player.color = gameConfig.shipColor;
+    player.justShot = false;
+
+    // Re-initialize player position
+    player.x = Math.random() * (canvas.width - player.width);
+    player.y = canvas.height - player.height;
+
+    // // Keyboard input
+    // document.addEventListener('keydown', (e) => keys[e.key] = true);
+    // document.addEventListener('keyup', (e) => keys[e.key] = false);
     initEnemies();
 
+    // Prevent duplicate listeners
+    document.removeEventListener('keydown', keydownHandler);
+    document.removeEventListener('keyup', keyupHandler);
+    document.addEventListener('keydown', keydownHandler);
+    document.addEventListener('keyup', keyupHandler);
+
+    gameActive = true;
     gameLoop(); // Start the game
 }
 
@@ -241,8 +390,6 @@ function update() {
         });
         player.justShot = true;
         setTimeout(() => player.justShot = false, 200);
-
-
     }
     const moveSpeed = 5;
     const allowedLeft = 0;
@@ -408,23 +555,59 @@ function draw() {
     if (enemies.length === 0) {
         ctx.fillStyle = "green";
         ctx.font = "40px Arial";
-        ctx.fillText("YOU WIN!", canvas.width / 2 - 100, canvas.height / 2);
+        ctx.fillText("Champion!", canvas.width / 2 - 100, canvas.height / 2);
         gameOver = true;
     }
     // Game over condition
     if (lives <= 0) {
         ctx.fillStyle = "red";
         ctx.font = "40px Arial";
-        ctx.fillText("GAME OVER", canvas.width / 2 - 120, canvas.height / 2);
+        ctx.fillText("You Lost!", canvas.width / 2 - 120, canvas.height / 2);
         gameOver = true;
     }
+    // Time's up condition
+    if (timeLeft <= 0) {
+        if (score < 100) {
+            ctx.fillStyle = "orange";
+            ctx.font = "28px Arial";
+            ctx.fillText(`You can do better. Your score: ${score}`, canvas.width / 2 - 120, canvas.height / 2);
+        }
+        else {
+            ctx.fillStyle = "blue";
+            ctx.font = "40px Arial";
+            ctx.fillText("Winner!", canvas.width / 2 - 120, canvas.height / 2);
+        }
+        gameOver = true;
+    }
+
+    // Draw score history
+    // === Score History Table ===
+    if (scoreHistoryList.length > 0 && gameOver) {
+        ctx.fillStyle = "black";
+        ctx.font = "16px monospace";
+        ctx.fillText("Top Scores:", canvas.width - 180, 80);
+
+        scoreHistoryList.slice(0, 5).forEach((entry, i) => {
+            let isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
+            ctx.fillStyle = isLatest ? "gold" : "black";
+            ctx.fillText(`#${i + 1}: ${entry.score}`, canvas.width - 180, 100 + i * 20);
+        });
+    }
+    
 }
 
 function gameLoop() {
     update();
     draw();
-    if (!gameOver) {
-        requestAnimationFrame(gameLoop);
+    if (gameActive && !gameOver) {
+        gameFrameId = requestAnimationFrame(gameLoop);
+    }
+    else {
+        // Save score history
+        updateScoreHistory();
+        gameActive = false;
+        // Force one more frame so we can draw the updated score
+        requestAnimationFrame(draw);
     }
 }
 
