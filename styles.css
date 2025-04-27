@@ -66,6 +66,8 @@ html, body {
     top: 0;
     left: 0;
     width: 100%;
+    padding: 0;
+    margin: 0;
     /* z-index: 10; */
     background: none; 
     font-family: 'Orbitron', sans-serif;
@@ -76,7 +78,7 @@ html, body {
     justify-content: center;
     list-style: none;
     margin: 0;
-    /* padding: 0; */
+    padding: 0;
 }
 
 /* Individual menu items */
@@ -308,56 +310,36 @@ form .form-line {
 
 }
 
-#restartBtn {
-    position: absolute;
-    top: 60%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
-    
+#restartBtn, #quitGameBtn {
+    display: inline-block;
+    margin: 20px 10px 0 10px; /* margin between buttons and top spacing */
     background-color: var(--primary-color);
     color: var(--background-color);
     font-family: 'Orbitron', sans-serif;
     font-size: 15px;
     border: none;
     padding: 10px 20px;
-    margin-top: 40px;
     border-radius: 8px;
     cursor: pointer;
     box-shadow: 0 0 10px #ff00d9, 0 0 20px #ff00d9, 0 0 30px #ff00d9;
     transition: background-color 0.3s, transform 0.3s, box-shadow 0.5s;
 }
 
-#restartBtn:hover {
+/* Hover effects */
+#restartBtn:hover, #quitGameBtn:hover {
     background-color: #00cccc;
-    transform: scale(1.1);
-    box-shadow: 0
-     0 20px #00ffff, 0 0 30px #00ffff, 0 0 40px #00ffff;
-}
-
-#quitGameBtn {
-    position: absolute;
-    top: 60%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
-    
-    background-color: var(--primary-color);
-    color: var(--background-color);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 15px;
-    border: none;
-    padding: 10px 20px;
-    margin-top: 100px;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 0 10px #ff00d9, 0 0 20px #ff00d9, 0 0 30px #ff00d9;
-    transition: background-color 0.3s, transform 0.3s, box-shadow 0.5s;
-}
-
-#quitGameBtn:hover {
-    background-color: #00cccc;
-    transform: scale(1.1);
     box-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 40px #00ffff;
 }
 
+/* Center the buttons' container */
+#game_page {
+    text-align: center;
+}
+
+#about_page {
+    color: black;
+    margin-top: 20px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+}

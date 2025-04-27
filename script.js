@@ -121,7 +121,7 @@ document.getElementById('restartBtn').addEventListener('click', () => {
     gameActive = false;
     keys = {}; // stop stuck key presses
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    document.getElementById('restartBtn').style.display = 'none';
+    // document.getElementById('restartBtn').style.display = 'none';
     resetGame();
     setupGame();
 });
@@ -258,7 +258,9 @@ let maxSpeedBoosts = 4;
 let boostInterval = 10000; // every 5 seconds
 let lastBoostTime = Date.now();
 let gameOver = false;
-let playerShipImg = null;  // Global image object
+let playerShipImg = new Image();
+playerShipImg.src = 'images/spaceship1.png'; // default ship image
+
 
 const goodBulletImg = new Image();
 goodBulletImg.src = 'images/good_bullet.png';
@@ -467,7 +469,7 @@ function setupGame() {
 
 // <<<<<<< cssUpdates
     backgroundMusic.play();
-    playerShipImg = new Image();
+    // playerShipImg = new Image();
     playerShipImg.src = player.shipImageSrc || 'images/spaceship1.png'; // Default fallback
     // Keyboard input
     document.addEventListener('keydown', (e) => keys[e.key] = true);
@@ -647,21 +649,14 @@ function draw() {
     ctx.fillText(`Lives: ${lives}`, 20, 20);
 
     // Show time left
-    // ctx.fillStyle = "white";
-    // ctx.font = "20px Rajdhani";
-    // ctx.bold = true;
     ctx.fillText(`Time: ${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`, canvas.width - 100, 20);
-
     
     // // Show score
-    // ctx.fillStyle = "white";
-    // ctx.font = "20px Rajdhani";
-    // ctx.bold = true;
     ctx.fillText(`Score: ${score}`, 20, 40);
 
     // Draw the player spaceship (rectangle for now)
-    const playerShipImg = new Image();
-    playerShipImg.src = player.shipImageSrc || 'images/spaceship1.png'; // Default fallback
+    // const playerShipImg = new Image();
+    // playerShipImg.src = player.shipImageSrc || 'images/spaceship1.png'; // Default fallback
 
     ctx.drawImage(playerShipImg, player.x, player.y, player.width, player.height);
 
@@ -683,14 +678,26 @@ function draw() {
 // <<<<<<< cssUpdates
     // Win/Lose conditionsz
     if (!gameOver) {
+        // if we reach game over condition:
+        if (lives <= 0 || enemies.length === 0 || timeLeft <= 0) {
+            // stop background music
+            if (backgroundMusic && !backgroundMusic.paused) {
+                backgroundMusic.pause();
+                backgroundMusic.currentTime = 0;
+            }
+            // clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            gameOver = true;
+            updateScoreHistory();
+        }
+
         if (lives <= 0) {
             gameOverSound.play();
             ctx.fillStyle = "red";
             ctx.font = "bold 60px Orbitron";
             ctx.textAlign = "center";
-            ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+            ctx.fillText("you lost!", canvas.width / 2, canvas.height / 2);
             document.getElementById('restartBtn').style.display = 'inline-block';
-            gameOver = true;
         } 
         
         else if (enemies.length === 0) {
@@ -698,32 +705,46 @@ function draw() {
             ctx.fillStyle = "green";
             ctx.font = "bold 60px Orbitron";
             ctx.textAlign = "center";
-            ctx.fillText("YOU WIN!", canvas.width / 2, canvas.height / 2);
+            ctx.fillText("Champion!", canvas.width / 2, canvas.height / 2);
             document.getElementById('restartBtn').style.display = 'inline-block';
-            gameOver = true;
+        }
+        else{
+            if (timeLeft <= 0) {
+                if (score < 100) {
+                    gameOverSound.play();
+                    ctx.fillStyle = "orange";
+                    ctx.font = "bold 30px Orbitron";
+                    ctx.textAlign = "center";
+                    ctx.fillText(`you can do better! score: ${score}`, canvas.width / 2, canvas.height / 2);
+                }
+                else{
+                    winGameSound.play();
+                    ctx.fillStyle = "green";
+                    ctx.font = "bold 30px Orbitron";
+                    ctx.textAlign = "center";
+                    ctx.fillText(`winner!`, canvas.width / 2, canvas.height / 2);
+                }
+            }
+        }
+        // Draw score history after message
+        if (gameOver) {
+            // === Score History Table ===
+            if (scoreHistoryList.length > 0) {
+                ctx.fillStyle = "black";
+                ctx.font = "16px monospace";
+                ctx.fillText("Top Scores:", canvas.width - 180, 80);
+
+                scoreHistoryList.slice(0, 25).forEach((entry, i) => {
+                    let isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
+                    ctx.fillStyle = isLatest ? "gold" : "black";
+                    ctx.fillText(`#${i + 1}: ${entry.score}`, canvas.width - 180, 100 + i * 20);
+                });
+            }
         }
     }
     
 }
 
-
-
-
-// function gameLoop() {
-//     update();
-//     draw();
-//     if (gameActive && !gameOver) {
-//         gameFrameId = requestAnimationFrame(gameLoop);
-//     }
-//     else {
-//         // Save score history
-//         updateScoreHistory();
-//         gameActive = false;
-//         // Force one more frame so we can draw the updated score
-//         requestAnimationFrame(draw);
-//     }
-
-// }
 
 function gameLoop() {
     update();
@@ -731,18 +752,8 @@ function gameLoop() {
     if (gameActive && !gameOver) {
         gameFrameId = requestAnimationFrame(gameLoop);
     } else if (gameOver) {
-        if (lives <= 0) {
-            gameOverSound.play();
-        } else if (enemies.length === 0) {
-            winGameSound.play();
-        }
-        updateScoreHistory();
         gameActive = false;
-        document.getElementById('restartBtn').style.display = 'inline-block'; // Show restart button
     }
 }
-
-
-// ------------------------------
 
 
