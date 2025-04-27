@@ -14,17 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetSection) {
             targetSection.classList.add('active');
         }
-// <<<<<<< cssUpdates
         if (targetId !== 'game_page') {
             resetGame();
-// =======
-//         // If we're leaving the game screen, stop everything
-//         if (targetId !== 'game_page' && gameActive) {
-//             cancelAnimationFrame(gameFrameId);
-//             gameActive = false;
-//             keys = {}; // stop stuck key presses
-//             ctx.clearRect(0, 0, canvas.width, canvas.height);
-// >>>>>>> main
         }
     }
     // Add click event listeners to all links
@@ -295,7 +286,6 @@ let speedupFactor = 1;
 let startTime = null;
 let timeLeft = gameConfig.timeLimit * 60; // in seconds
 
-// <<<<<<< cssUpdates
 //sounds
 const winGameSound = new Audio('sounds/win_game.mp3'); 
 const gameOverSound = new Audio('sounds/game_over.mp3');
@@ -303,38 +293,6 @@ const backgroundMusic = new Audio('sounds/background_music.mp3');
 backgroundMusic.loop = true; 
 backgroundMusic.volume = 0.5;
 
-// // Reset game function
-// function resetGame() {
-//     // Stop background music if playing
-//     if (backgroundMusic && !backgroundMusic.paused) {
-//         backgroundMusic.pause();
-//         backgroundMusic.currentTime = 0;
-//     }
-
-    // Clear all pressed keys
-    // keys = {};
-
-    // Reset game-related variables
-    // gameOver = false;
-    // lives = 3;
-    // score = 0;
-    // playerBullets = [];
-    // enemyBullets = [];
-    // enemies = [];
-    // speedBoosts = 0;
-    // lastBoostTime = Date.now();
-    // timeLeft = gameConfig.timeLimit * 60; // Reset timer
-
-    // // Reset player position
-    // player.x = Math.random() * (canvas.width - player.width);
-    // player.y = canvas.heigדht - player.height;
-
-    // Clear canvas
-    // ctx.clearRect(0, 0, canvas.width, canvas.height);
-// ======= main
-
-
-// =======
 function resetGame() {
     // Stop background music if playing
     if (backgroundMusic && !backgroundMusic.paused) {
@@ -393,12 +351,21 @@ function initEnemies() {
         const startX = (canvas.width - totalRowWidth) / 2;
 
         for (let col = 0; col < enemyCols; col++) {
+            // enemies.push({
+            //     x: startX + col * (currentWidth + spacing),
+            //     y: 50 + row * (currentHeight + spacing),
+            //     width: currentWidth,
+            //     height: currentHeight,
+            //     row: row 
+            // });
             enemies.push({
-                x: startX + col * (currentWidth + spacing),
-                y: 50 + row * (currentHeight + spacing),
-                width: currentWidth,
-                height: currentHeight,
-                row: row 
+                x: 100 + col * (enemyWidth + enemySpacing),
+                y: 50 + row * (enemyHeight + enemySpacing),
+                width: enemyWidth,
+                height: enemyHeight,
+                row: row,
+                dx: 1, // מהירות בציר X
+                dy: 0.2 // מהירות בציר Y - כדי שיזוזו קצת גם למטה/למעלה
             });
         }
     }
@@ -467,7 +434,6 @@ function setupGame() {
     resetGame();
     startTime = Date.now();
 
-// <<<<<<< cssUpdates
     backgroundMusic.play();
     // playerShipImg = new Image();
     playerShipImg.src = player.shipImageSrc || 'images/spaceship1.png'; // Default fallback
@@ -476,18 +442,12 @@ function setupGame() {
     document.addEventListener('keyup', (e) => keys[e.key] = false);
     
     initEnemies();
-// =======
-//     player.color = gameConfig.shipColor;
+
     player.justShot = false;
 
     // Re-initialize player position
     player.x = Math.random() * (canvas.width - player.width);
     player.y = canvas.height - player.height;
-
-//     // // Keyboard input
-//     // document.addEventListener('keydown', (e) => keys[e.key] = true);
-//     // document.addEventListener('keyup', (e) => keys[e.key] = false);
-//     initEnemies();
 
     // Prevent duplicate listeners
     document.removeEventListener('keydown', keydownHandler);
@@ -496,7 +456,6 @@ function setupGame() {
     document.addEventListener('keyup', keyupHandler);
 
     gameActive = true;
-// >>>>>>> main
     gameLoop(); // Start the game
 }
 
@@ -675,7 +634,6 @@ function draw() {
     }
     
 
-// <<<<<<< cssUpdates
     // Win/Lose conditionsz
     if (!gameOver) {
         // if we reach game over condition:
@@ -696,7 +654,7 @@ function draw() {
             ctx.fillStyle = "red";
             ctx.font = "bold 60px Orbitron";
             ctx.textAlign = "center";
-            ctx.fillText("you lost!", canvas.width / 2, canvas.height / 2);
+            ctx.fillText("You Lost!", canvas.width / 2, 50);
             document.getElementById('restartBtn').style.display = 'inline-block';
         } 
         
@@ -705,7 +663,7 @@ function draw() {
             ctx.fillStyle = "green";
             ctx.font = "bold 60px Orbitron";
             ctx.textAlign = "center";
-            ctx.fillText("Champion!", canvas.width / 2, canvas.height / 2);
+            ctx.fillText("Champion!", canvas.width / 2, 50);
             document.getElementById('restartBtn').style.display = 'inline-block';
         }
         else{
@@ -715,14 +673,14 @@ function draw() {
                     ctx.fillStyle = "orange";
                     ctx.font = "bold 30px Orbitron";
                     ctx.textAlign = "center";
-                    ctx.fillText(`you can do better! score: ${score}`, canvas.width / 2, canvas.height / 2);
+                    ctx.fillText(`You can do better! score: ${score}`, canvas.width / 2, 50);
                 }
                 else{
                     winGameSound.play();
                     ctx.fillStyle = "green";
                     ctx.font = "bold 30px Orbitron";
                     ctx.textAlign = "center";
-                    ctx.fillText(`winner!`, canvas.width / 2, canvas.height / 2);
+                    ctx.fillText(`Winner!`, canvas.width / 2, 50);
                 }
             }
         }
@@ -730,15 +688,22 @@ function draw() {
         if (gameOver) {
             // === Score History Table ===
             if (scoreHistoryList.length > 0) {
-                ctx.fillStyle = "black";
-                ctx.font = "16px monospace";
-                ctx.fillText("Top Scores:", canvas.width - 180, 80);
+                const listX = canvas.width / 2;
+                const listTop = 80; 
+                const lineHeight = 24;
 
+                ctx.textAlign = "center";
+                ctx.fillStyle = "black";
+                ctx.font = "20px monospace";
+                ctx.fillText("Top Scores:", listX, listTop);
+
+                ctx.font = "16px monospace";
                 scoreHistoryList.slice(0, 25).forEach((entry, i) => {
                     let isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
                     ctx.fillStyle = isLatest ? "gold" : "black";
-                    ctx.fillText(`#${i + 1}: ${entry.score}`, canvas.width - 180, 100 + i * 20);
+                    ctx.fillText(`#${i + 1}: ${entry.score}`, listX, listTop + 30 + i * lineHeight);
                 });
+                ctx.fillText = "start";
             }
         }
     }

@@ -105,12 +105,22 @@
             </form>
         </div>
         <!-- <button onclick="openAboutModal()">About</button> -->
-        <dialog id="about_page" class="modal">
-            <h2>About the Game</h2>
-            <p>This game is a fun and interactive way to learn about spaceships and space travel.</p>
-            <!-- <button id="closeDialogBtn">Close</button> -->
-            <button class="close-x" id="closeDialogBtn">&times;</button> <!-- Close X -->
+
+        <dialog id="about_page" class="modal"> 
+            <p style="font-size:x-large;">
+                In this game, we implemented the following features:
+            </p>
+            <ul class="about-list">
+                <li style="--i: 1">🎮 Game Instructions: Navigate your spaceship using the arrow keys. Shoot enemy ships!</li>
+                <li style="--i: 2">❤️ Extra Lives: The player has 3 lives. After getting hit, the ship resets at the bottom.</li>
+                <li style="--i: 3">🚀 Special Shooting: The spaceship can shoot special bullets for a limited time.</li>
+                <li style="--i: 4">⏱️ Game Timer: A timer counts down and shows the remaining time.</li>
+            </ul>
+            
+            <button class="close-x" id="closeDialogBtn">&times;</button> 
         </dialog>
+
+
         <div id="config_page">
             <h2>Game Configuration</h2>
             <form id="config_form">
@@ -120,12 +130,10 @@
                 </div>
                 <small>Use a single letter or type "space".</small>
 
-                <!-- <br><br> -->
                 <div class="form-line">
                     <label for="game_time">Game Time (minutes):</label>
                     <input type="number" id="game_time" name="game_time" min="2" value="2">
                 </div>
-                <!-- <br><br> -->
                 <div class="form-line">
                 <div id="ship_selection">
                     <label>Select your spaceship:</label>
@@ -144,8 +152,10 @@
         
         <div id="game_page" >
             <canvas id="gameCanvas" width="700%" height="400"></canvas>
-            <button id="restartBtn">Restart Game</button>
-            <button id="quitGameBtn">Quit</button>
+            <button id="restartBtn" style="margin: 10px;">Restart Game </button>
+            <button id="quitGameBtn"style="margin: 10px;">Quit</button>
+            <!-- <button onclick="showScreen('register_page')" style="margin: 10px;">Register</button>
+            <button onclick="showScreen('login_page')" style="margin: 10px;">Login</button> -->
         </div>
     </div>
     
