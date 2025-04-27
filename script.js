@@ -668,7 +668,6 @@ function draw() {
                     ctx.fillStyle = isLatest ? "gold" : "black";
                     ctx.fillText(`#${i + 1}: ${entry.score}`, listX, listTop + 30 + i * lineHeight);
                 });
-                ctx.fillText = "start";
             }
         }
     }
