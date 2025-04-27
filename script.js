@@ -14,8 +14,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetSection) {
             targetSection.classList.add('active');
         }
+// <<<<<<< cssUpdates
         if (targetId !== 'game_page') {
             resetGame();
+// =======
+//         // If we're leaving the game screen, stop everything
+//         if (targetId !== 'game_page' && gameActive) {
+//             cancelAnimationFrame(gameFrameId);
+//             gameActive = false;
+//             keys = {}; // stop stuck key presses
+//             ctx.clearRect(0, 0, canvas.width, canvas.height);
+// >>>>>>> main
         }
     }
     // Add click event listeners to all links
@@ -78,6 +87,67 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // Add dailog event listener to the about button
+    // Get references to the dialog and the About link
+    const aboutDialog = document.getElementById('about_page');
+    const aboutLink = document.getElementById('about_link');
+    const closeDialogBtn = document.getElementById('closeDialogBtn');
+    console.log(aboutDialog, aboutLink, closeDialogBtn);
+
+    // Open the dialog when the About link is clicked
+    aboutLink.addEventListener('click', function(event) {
+        event.preventDefault();  // Prevent default action of the link
+        console.log('About link clicked');
+        aboutDialog.showModal();  // Open the dialog
+    });
+
+    // Close the dialog when the Close X button is clicked
+    closeDialogBtn.addEventListener('click', function() {
+        aboutDialog.close();  // Close the dialog
+    });
+
+    // Close the dialog when clicking outside (on the backdrop)
+    aboutDialog.addEventListener('click', function(event) {
+        if (event.target === aboutDialog) {
+            aboutDialog.close();  // Close the dialog if click is on the backdrop
+        }
+    });
+
+    // restart game logic
+    document.getElementById('restartGameBtn').addEventListener('click', () => {
+        showScreen('game_page');
+        cancelAnimationFrame(gameFrameId);
+        gameActive = false;
+        keys = {}; // stop stuck key presses
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        setupGame();
+    });
+
+    // Quit game logic
+    document.getElementById('quitGameBtn').addEventListener('click', () => {
+        showScreen('welcome_page');
+    });
+
+    // // Pause game logic
+    // document.getElementById('pauseGameBtn').addEventListener('click', () => {
+    //     if (!gamePaused) {
+    //         cancelAnimationFrame(gameFrameId);
+    //         gamePaused = true;
+    //         document.getElementById('pauseGameBtn').style.display = 'none';
+    //         document.getElementById('resumeGameBtn').style.display = 'inline-block';
+    //     }
+    // });
+    
+    // document.getElementById('resumeGameBtn').addEventListener('click', () => {
+    //     if (gamePaused) {
+    //         gamePaused = false;
+    //         gameFrameId = requestAnimationFrame(gameLoop);
+    //         document.getElementById('pauseGameBtn').style.display = 'inline-block';
+    //         document.getElementById('resumeGameBtn').style.display = 'none';
+    //     }
+    // });
+    
 
 });
 
@@ -162,10 +232,14 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 let player = { x: 400, y: 500, width: 40, height: 40, color: gameConfig.shipColor };
 let keys = {};
+let scoreHistoryList = []; // globally store history for drawing
+let gameActive = false;
+let gameFrameId = null;
+let gamePaused = false;
 
 // player variables
 // Set random start position for the player within allowed movement area (40% of canvas)
-const startX = Math.random()*(canvas.width-player.width);
+let startX = Math.random()*(canvas.width-player.width);
 player.x = startX;
 player.y = canvas.height - player.height ; // bottom of screen
 
@@ -212,6 +286,7 @@ let speedupFactor = 1;
 let startTime = null;
 let timeLeft = gameConfig.timeLimit * 60; // in seconds
 
+// <<<<<<< cssUpdates
 //sounds
 const winGameSound = new Audio('sounds/win_game.mp3'); 
 const gameOverSound = new Audio('sounds/game_over.mp3');
@@ -220,6 +295,43 @@ backgroundMusic.loop = true;
 backgroundMusic.volume = 0.5;
 
 
+// =======
+// function restartGameVariables() {
+//     gameActive = false;
+//     gameFrameId = null;
+
+//     player.x = startX;
+//     player.y = canvas.height - player.height ; // bottom of screen
+
+//     playerBullets = [];
+//     lives = 3;
+//     score = 0;
+//     speedBoosts = 0;
+//     maxSpeedBoosts = 4;
+//     boostInterval = 10000; // every 5 seconds
+//     lastBoostTime = Date.now();
+//     gameOver = false;
+
+//     // enemy variables
+//     enemies = [];
+//     enemyRows = 4;
+//     enemyCols = 5;
+//     enemyWidth = 50;
+//     enemyHeight = 30;
+//     enemySpacing = 20;
+//     enemyDirection = 1; // 1 = right, -1 = left
+//     enemySpeed = 1;
+
+//     enemyBullets = [];
+//     lastShotTime = 0;
+//     bulletCooldown = 1000; // milliseconds
+//     speedupFactor = 1;
+
+//     // timer variables
+//     startTime = null;
+//     timeLeft = gameConfig.timeLimit * 60; // in seconds
+// }
+// >>>>>>> main
 
 function initEnemies() {
     enemies = [];
@@ -278,8 +390,37 @@ function checkCollision(rect1, rect2) {
     );
 }
 
+// Function to handle game score history
+function updateScoreHistory() {
+    const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
+    if (!storedUser || !storedUser.username) return;
+
+    const historyKey = `scoreHistory_${storedUser.username}`;
+    let history = JSON.parse(localStorage.getItem(historyKey)) || [];
+
+    const newEntry = { score: score, timestamp: new Date().toISOString() };
+    history.push(newEntry);
+    history.sort((a, b) => b.score - a.score); // high-to-low
+
+    localStorage.setItem(historyKey, JSON.stringify(history));
+
+    scoreHistoryList = history; // keep a copy to draw later
+    scoreHistoryList.latestTimestamp = newEntry.timestamp;
+}
+
+function keydownHandler(e) {
+    keys[e.key] = true;
+}
+function keyupHandler(e) {
+    keys[e.key] = false;
+}
+
+
 function setupGame() {
+    // Reset game flags and state
+    restartGameVariables();
     startTime = Date.now();
+// <<<<<<< cssUpdates
     backgroundMusic.play();
     playerShipImg = new Image();
     playerShipImg.src = player.shipImageSrc || 'images/spaceship1.png'; // Default fallback
@@ -288,6 +429,27 @@ function setupGame() {
     document.addEventListener('keyup', (e) => keys[e.key] = false);
     
     initEnemies();
+// =======
+//     player.color = gameConfig.shipColor;
+//     player.justShot = false;
+
+//     // Re-initialize player position
+//     player.x = Math.random() * (canvas.width - player.width);
+//     player.y = canvas.height - player.height;
+
+//     // // Keyboard input
+//     // document.addEventListener('keydown', (e) => keys[e.key] = true);
+//     // document.addEventListener('keyup', (e) => keys[e.key] = false);
+//     initEnemies();
+
+//     // Prevent duplicate listeners
+//     document.removeEventListener('keydown', keydownHandler);
+//     document.removeEventListener('keyup', keyupHandler);
+//     document.addEventListener('keydown', keydownHandler);
+//     document.addEventListener('keyup', keyupHandler);
+
+//     gameActive = true;
+// >>>>>>> main
     gameLoop(); // Start the game
 }
 
@@ -304,8 +466,6 @@ function update() {
         });
         player.justShot = true;
         setTimeout(() => player.justShot = false, 200);
-
-
     }
     const moveSpeed = 5;
     const allowedLeft = 0;
@@ -475,6 +635,7 @@ function draw() {
     }
     
 
+// <<<<<<< cssUpdates
     // Win/Lose conditionsz
     if (!gameOver) {
         if (lives <= 0) {
@@ -500,42 +661,50 @@ function draw() {
     
 }
 
-// Reset game function
-function resetGame() {
-    // Stop background music if playing
-    if (backgroundMusic && !backgroundMusic.paused) {
-        backgroundMusic.pause();
-        backgroundMusic.currentTime = 0;
-    }
+// // Reset game function
+// function resetGame() {
+//     // Stop background music if playing
+//     if (backgroundMusic && !backgroundMusic.paused) {
+//         backgroundMusic.pause();
+//         backgroundMusic.currentTime = 0;
+//     }
 
-    // Clear all pressed keys
-    keys = {};
+//     // Clear all pressed keys
+//     keys = {};
 
-    // Reset game-related variables
-    gameOver = false;
-    lives = 3;
-    score = 0;
-    playerBullets = [];
-    enemyBullets = [];
-    enemies = [];
-    speedBoosts = 0;
-    lastBoostTime = Date.now();
-    timeLeft = gameConfig.timeLimit * 60; // Reset timer
+//     // Reset game-related variables
+//     gameOver = false;
+//     lives = 3;
+//     score = 0;
+//     playerBullets = [];
+//     enemyBullets = [];
+//     enemies = [];
+//     speedBoosts = 0;
+//     lastBoostTime = Date.now();
+//     timeLeft = gameConfig.timeLimit * 60; // Reset timer
 
-    // Reset player position
-    player.x = Math.random() * (canvas.width - player.width);
-    player.y = canvas.height - player.height;
+//     // Reset player position
+//     player.x = Math.random() * (canvas.width - player.width);
+//     player.y = canvas.height - player.height;
 
-    // Clear canvas
-    // ctx.clearRect(0, 0, canvas.width, canvas.height);
+//     // Clear canvas
+//     // ctx.clearRect(0, 0, canvas.width, canvas.height);
+// ======= main
 }
 
 
 function gameLoop() {
     update();
     draw();
-    if (!gameOver) {
-        requestAnimationFrame(gameLoop);
+    if (gameActive && !gameOver) {
+        gameFrameId = requestAnimationFrame(gameLoop);
+    }
+    else {
+        // Save score history
+        updateScoreHistory();
+        gameActive = false;
+        // Force one more frame so we can draw the updated score
+        requestAnimationFrame(draw);
     }
 
 }
