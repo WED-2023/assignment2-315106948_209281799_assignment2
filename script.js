@@ -109,49 +109,17 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('restartBtn').addEventListener('click', () => {
     showScreen('game_page');
     cancelAnimationFrame(gameFrameId);
-    gameActive = false;
     keys = {}; // stop stuck key presses
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // ctx.clearRect(0, 0, canvas.width, canvas.height);
     // document.getElementById('restartBtn').style.display = 'none';
-    resetGame();
     setupGame();
 });
-
-
-    // // restart game logic
-    // document.getElementById('restartGameBtn').addEventListener('click', () => {
-    //     showScreen('game_page');
-    //     cancelAnimationFrame(gameFrameId);
-    //     gameActive = false;
-    //     keys = {}; // stop stuck key presses
-    //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //     setupGame();
-    // });
 
     // Quit game logic
     document.getElementById('quitGameBtn').addEventListener('click', () => {
         showScreen('welcome_page');
     });
 
-    // // Pause game logic
-    // document.getElementById('pauseGameBtn').addEventListener('click', () => {
-    //     if (!gamePaused) {
-    //         cancelAnimationFrame(gameFrameId);
-    //         gamePaused = true;
-    //         document.getElementById('pauseGameBtn').style.display = 'none';
-    //         document.getElementById('resumeGameBtn').style.display = 'inline-block';
-    //     }
-    // });
-    
-    // document.getElementById('resumeGameBtn').addEventListener('click', () => {
-    //     if (gamePaused) {
-    //         gamePaused = false;
-    //         gameFrameId = requestAnimationFrame(gameLoop);
-    //         document.getElementById('pauseGameBtn').style.display = 'inline-block';
-    //         document.getElementById('resumeGameBtn').style.display = 'none';
-    //     }
-    // });
-    
 
 });
 
@@ -231,9 +199,7 @@ const ctx = canvas.getContext('2d');
 let player = { x: 400, y: 500, width: 40, height: 40, color: gameConfig.shipColor };
 let keys = {};
 let scoreHistoryList = []; // globally store history for drawing
-let gameActive = false;
 let gameFrameId = null;
-let gamePaused = false;
 
 // player variables
 // Set random start position for the player within allowed movement area (40% of canvas)
@@ -299,7 +265,6 @@ function resetGame() {
         backgroundMusic.pause();
         backgroundMusic.currentTime = 0;
     }
-    gameActive = false;
     gameFrameId = null;
 
    // Reset player position
@@ -455,7 +420,7 @@ function setupGame() {
     document.addEventListener('keydown', keydownHandler);
     document.addEventListener('keyup', keyupHandler);
 
-    gameActive = true;
+    gameOver = false;
     gameLoop(); // Start the game
 }
 
@@ -703,7 +668,6 @@ function draw() {
                     ctx.fillStyle = isLatest ? "gold" : "black";
                     ctx.fillText(`#${i + 1}: ${entry.score}`, listX, listTop + 30 + i * lineHeight);
                 });
-                ctx.fillText = "start";
             }
         }
     }
@@ -714,10 +678,8 @@ function draw() {
 function gameLoop() {
     update();
     draw();
-    if (gameActive && !gameOver) {
+    if (!gameOver) {
         gameFrameId = requestAnimationFrame(gameLoop);
-    } else if (gameOver) {
-        gameActive = false;
     }
 }
 
