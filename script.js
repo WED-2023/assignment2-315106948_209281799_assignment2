@@ -351,22 +351,22 @@ function initEnemies() {
         const startX = (canvas.width - totalRowWidth) / 2;
 
         for (let col = 0; col < enemyCols; col++) {
-            // enemies.push({
-            //     x: startX + col * (currentWidth + spacing),
-            //     y: 50 + row * (currentHeight + spacing),
-            //     width: currentWidth,
-            //     height: currentHeight,
-            //     row: row 
-            // });
             enemies.push({
-                x: 100 + col * (enemyWidth + enemySpacing),
-                y: 50 + row * (enemyHeight + enemySpacing),
-                width: enemyWidth,
-                height: enemyHeight,
-                row: row,
-                dx: 1, // מהירות בציר X
-                dy: 0.2 // מהירות בציר Y - כדי שיזוזו קצת גם למטה/למעלה
+                x: startX + col * (currentWidth + spacing),
+                y: 50 + row * (currentHeight + spacing),
+                width: currentWidth,
+                height: currentHeight,
+                row: row 
             });
+            // enemies.push({
+            //     x: 100 + col * (enemyWidth + enemySpacing),
+            //     y: 50 + row * (enemyHeight + enemySpacing),
+            //     width: enemyWidth,
+            //     height: enemyHeight,
+            //     row: row,
+            //     dx: 1, // מהירות בציר X
+            //     dy: 0.2 // מהירות בציר Y - כדי שיזוזו קצת גם למטה/למעלה
+            // });
         }
     }
 }
