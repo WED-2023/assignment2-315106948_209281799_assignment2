@@ -33,18 +33,61 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show welcome page by default
     showScreen('welcome_page');
 
-    // Handle Register Form Submission
-    document.getElementById('register_form').addEventListener('submit', function (e) {
-        e.preventDefault();
+    const form = document.getElementById('register_form');
+    const password = document.getElementById('register_password');
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    // Clear previous custom messages
+    password.setCustomValidity('');
+    confirmPassword.setCustomValidity('');
 
+    function validatePasswordMatch() {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Passwords do not match.');
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    }
+    password.addEventListener('input', validatePasswordMatch);
+    confirmPassword.addEventListener('input', validatePasswordMatch);
+
+    // Handle Register Form Submission
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        
+        validatePasswordMatch()
         const user = {
-            username: document.getElementById('username').value,
-            password: document.getElementById('password').value,
+
+            username: document.getElementById('register_username').value,
+            password: document.getElementById('register_password').value,
+            confirmPassword: document.getElementById('confirm_password').value,
             firstname: document.getElementById('firstname').value,
             surname: document.getElementById('surname').value,
             email: document.getElementById('email').value,
             birthdate: document.getElementById('birthdate').value
         };
+
+        
+        
+        // built-in validity checks
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // Check password match
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Passwords do not match.');
+            confirmPassword.reportValidity(); // shows the bubble
+            return;
+        }
+        // Check if username/email already exist
+        const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
+        if (storedUser && (storedUser.username === user.username || storedUser.email === user.email)) {
+            document.getElementById('username').setCustomValidity('Username or email already exists.');
+            document.getElementById('username').reportValidity();
+            return;
+        }
 
         // Save to localStorage
         localStorage.setItem('registeredUser', JSON.stringify(user));
@@ -582,166 +625,267 @@ function update() {
     const elapsed = Math.floor((Date.now() - startTime) / 1000);
     timeLeft = Math.max(0, gameConfig.timeLimit * 60 - elapsed);
 
-    if (timeLeft === 0 && !gameOver) {
+    if ((timeLeft <= 0 || lives === 0 || enemies.length === 0) && !gameOver) {
         gameOver = true;
-        console.log("Time's up!");
+        console.log("Game Over triggered!");
+        
+        // Stop background music
+        if (backgroundMusic && !backgroundMusic.paused) {
+            backgroundMusic.pause();
+            backgroundMusic.currentTime = 0;
+        }
+
+        updateScoreHistory(); // Save score immediately
     }
 
 }
 
+// function draw() {
+//     // Clear the canvas
+//     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+//     // Show lives
+//     ctx.textBaseline = "top"; 
+//     ctx.textAlign = "left"; 
+//     ctx.fillStyle = "white";
+//     ctx.font = "20px Rajdhani";
+//     // ctx.bold = true;
+//     ctx.fillText(`Lives: ${lives}`, 20, 20);
+//     // Show score
+//     ctx.fillText(`Score: ${score}`, 20, 40);
+
+//     ctx.textAlign = "right";
+//     // Show time left
+//     ctx.fillText(`Time: ${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`, canvas.width - 50, 20);
+    
+    
+
+//     // Draw the player spaceship (rectangle for now)
+//     // const playerShipImg = new Image();
+//     // playerShipImg.src = player.shipImageSrc || 'images/spaceship1.png'; // Default fallback
+
+//     ctx.drawImage(playerShipImg, player.x, player.y, player.width, player.height);
+
+//     for (let enemy of enemies) {
+//         if (enemy.row === 0) {
+//             ctx.drawImage(badShipBlackImg, enemy.x, enemy.y, enemy.width, enemy.height);
+//         }
+//         else if (enemy.row === 1) {
+//             ctx.drawImage(badShipRedImg, enemy.x, enemy.y, enemy.width, enemy.height);
+//         } 
+//         else if (enemy.row === 2) {
+//             ctx.drawImage(badShipBlueImg, enemy.x, enemy.y, enemy.width, enemy.height);
+//         } 
+//         else {
+//             ctx.drawImage(badShipGreenImg, enemy.x, enemy.y, enemy.width, enemy.height);
+//         }
+//     }
+    
+//     // Draw player bullets
+//     for (let bullet of playerBullets) {
+//         ctx.drawImage(goodBulletImg, bullet.x, bullet.y, bullet.width, bullet.height);
+//     }
+
+//     // Draw enemy bullets
+//     for (let bullet of enemyBullets) {
+//         ctx.drawImage(badBulletImg, bullet.x, bullet.y, bullet.width, bullet.height);
+//     }
+    
+
+//     // Win/Lose conditionsz
+//     if (!gameOver) {
+//         // if we reach game over condition:
+//         if (lives <= 0 || enemies.length === 0 || timeLeft <= 0) {
+//             // stop background music
+//             if (backgroundMusic && !backgroundMusic.paused) {
+//                 backgroundMusic.pause();
+//                 backgroundMusic.currentTime = 0;
+//             }
+//             // clear canvas
+//             ctx.clearRect(0, 0, canvas.width, canvas.height);
+//             gameOver = true;
+//             updateScoreHistory();
+//         }
+
+//         if (lives <= 0) {
+//             gameOverSound.play();
+//             ctx.fillStyle = "red";
+//             ctx.font = "bold 60px Orbitron";
+//             ctx.textAlign = "center";
+//             ctx.fillText("You Lost!", canvas.width / 2, 50);
+//             // document.getElementById('restartBtn').style.display = 'inline-block';
+//         } 
+        
+//         else if (enemies.length === 0) {
+//             winGameSound.play();
+//             ctx.fillStyle = "green";
+//             ctx.font = "bold 60px Orbitron";
+//             ctx.textAlign = "center";
+//             ctx.fillText("Champion!", canvas.width / 2, 50);
+//             // document.getElementById('restartBtn').style.display = 'inline-block';
+//         }
+//         else{
+//             if (timeLeft <= 0) {
+//                 if (score < 100) {
+//                     gameOverSound.play();
+//                     ctx.fillStyle = "orange";
+//                     ctx.font = "bold 30px Orbitron";
+//                     ctx.textAlign = "center";
+//                     ctx.fillText(`You can do better! score: ${score}`, canvas.width / 2, 50);
+//                 }
+//                 else{
+//                     winGameSound.play();
+//                     ctx.fillStyle = "green";
+//                     ctx.font = "bold 30px Orbitron";
+//                     ctx.textAlign = "center";
+//                     ctx.fillText(`Winner!`, canvas.width / 2, 50);
+//                 }
+//             }
+//         }
+//         // // Draw score history after message
+//         // if (gameOver) {
+//         //     // === Score History Table ===
+//         //     if (scoreHistoryList.length > 0) {
+//         //         const listX = canvas.width / 2;
+//         //         const listTop = 80; 
+//         //         const lineHeight = 24;
+
+//         //         ctx.textAlign = "center";
+//         //         ctx.fillStyle = "black";
+//         //         ctx.font = "20px monospace";
+//         //         ctx.fillText("Top Scores:", listX, listTop);
+
+//         //         ctx.font = "16px monospace";
+//         //         scoreHistoryList.slice(0, 25).forEach((entry, i) => {
+//         //             let isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
+//         //             ctx.fillStyle = isLatest ? "gold" : "black";
+//         //             ctx.fillText(`#${i + 1}: ${entry.score}`, listX, listTop + 30 + i * lineHeight);
+//         //         });
+//         //     }
+//         // }
+
+//         // Draw score history with timestamp
+//         if (gameOver) {
+//             // === Score History Table ===
+//             if (scoreHistoryList.length > 0) {
+//                 const listX = canvas.width / 2;
+//                 const listTop = 130;
+//                 const lineHeight = 22;
+
+//                 ctx.textAlign = "center";
+//                 ctx.fillStyle = "#333"; // Dark gray
+//                 ctx.font = "bold 24px 'Segoe UI', 'Roboto', sans-serif";
+//                 ctx.fillText("🏆 Top Scores 🏆", listX, listTop);
+
+//                 ctx.font = "16px 'Segoe UI', 'Roboto', sans-serif";
+
+//                 scoreHistoryList.slice(0, 10).forEach((entry, i) => {
+//                     const date = new Date(entry.timestamp);
+//                     const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+//                     const isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
+
+//                     ctx.fillStyle = isLatest ? "gold" : "black"; // Orange for latest, dark gray for others
+//                     ctx.font = isLatest ? "bold 16px 'Segoe UI', 'Roboto', sans-serif" : "16px 'Segoe UI', 'Roboto', sans-serif";
+
+//                     ctx.fillText(`#${i + 1}:     ${entry.score}     ${formattedDate}`, listX, listTop + 40 + i * lineHeight);
+//                 });
+//             }
+//         }
+
+
+//     }
+    
+// }
+
+function drawTopScores() {
+    if (scoreHistoryList.length > 0) {
+        const listX = canvas.width / 2;
+        const listTop = 130;
+        const lineHeight = 26;
+
+        ctx.fillStyle = "#333";
+        ctx.font = "bold 24px 'Segoe UI', 'Roboto', sans-serif";
+        ctx.fillText("🏆 Top Scores 🏆", listX, listTop);
+
+        ctx.font = "16px 'Segoe UI', 'Roboto', sans-serif";
+
+        scoreHistoryList.slice(0, 10).forEach((entry, i) => {
+            const date = new Date(entry.timestamp);
+            const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
+
+            ctx.fillStyle = isLatest ? "gold" : "white";
+            ctx.fillText(`#${i + 1}: ${entry.score} - ${formattedDate}`, listX, listTop + 40 + i * lineHeight);
+        });
+    }
+}
+
+
 function draw() {
-    // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Show lives
     ctx.fillStyle = "white";
     ctx.font = "20px Rajdhani";
-    // ctx.bold = true;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
     ctx.fillText(`Lives: ${lives}`, 20, 20);
+    ctx.fillText(`Score: ${score}`, 20, 50);
 
-    // Show time left
-    ctx.fillText(`Time: ${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`, canvas.width - 100, 20);
-    
-    // // Show score
-    ctx.fillText(`Score: ${score}`, 20, 40);
+    ctx.textAlign = "right";
+    ctx.fillText(`Time: ${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`, canvas.width - 20, 20);
 
-    // Draw the player spaceship (rectangle for now)
-    // const playerShipImg = new Image();
-    // playerShipImg.src = player.shipImageSrc || 'images/spaceship1.png'; // Default fallback
+    ctx.textAlign = "left"; // reset for other draws
 
+    // Draw all game objects
     ctx.drawImage(playerShipImg, player.x, player.y, player.width, player.height);
+    enemies.forEach(enemy => {
+        let img = badShipGreenImg;
+        if (enemy.row === 0) img = badShipBlackImg;
+        else if (enemy.row === 1) img = badShipRedImg;
+        else if (enemy.row === 2) img = badShipBlueImg;
+        ctx.drawImage(img, enemy.x, enemy.y, enemy.width, enemy.height);
+    });
+    playerBullets.forEach(b => ctx.drawImage(goodBulletImg, b.x, b.y, b.width, b.height));
+    enemyBullets.forEach(b => ctx.drawImage(badBulletImg, b.x, b.y, b.width, b.height));
 
-    for (let enemy of enemies) {
-        if (enemy.row === 0) {
-            ctx.drawImage(badShipBlackImg, enemy.x, enemy.y, enemy.width, enemy.height);
-        }
-        else if (enemy.row === 1) {
-            ctx.drawImage(badShipRedImg, enemy.x, enemy.y, enemy.width, enemy.height);
-        } 
-        else if (enemy.row === 2) {
-            ctx.drawImage(badShipBlueImg, enemy.x, enemy.y, enemy.width, enemy.height);
-        } 
-        else {
-            ctx.drawImage(badShipGreenImg, enemy.x, enemy.y, enemy.width, enemy.height);
-        }
-    }
-    
-    // Draw player bullets
-    for (let bullet of playerBullets) {
-        ctx.drawImage(goodBulletImg, bullet.x, bullet.y, bullet.width, bullet.height);
-    }
-
-    // Draw enemy bullets
-    for (let bullet of enemyBullets) {
-        ctx.drawImage(badBulletImg, bullet.x, bullet.y, bullet.width, bullet.height);
-    }
-    
-
-    // Win/Lose conditionsz
-    if (!gameOver) {
-        // if we reach game over condition:
-        if (lives <= 0 || enemies.length === 0 || timeLeft <= 0) {
-            // stop background music
-            if (backgroundMusic && !backgroundMusic.paused) {
-                backgroundMusic.pause();
-                backgroundMusic.currentTime = 0;
-            }
-            // clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            gameOver = true;
-            updateScoreHistory();
-        }
-
+    // === Game Over screen ===
+    if (gameOver) {
+        // clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = "white";
+        ctx.font = "bold 60px Orbitron";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+  
         if (lives <= 0) {
             gameOverSound.play();
             ctx.fillStyle = "red";
-            ctx.font = "bold 60px Orbitron";
-            ctx.textAlign = "center";
             ctx.fillText("You Lost!", canvas.width / 2, 50);
-            document.getElementById('restartBtn').style.display = 'inline-block';
-        } 
-        
+        }
         else if (enemies.length === 0) {
             winGameSound.play();
             ctx.fillStyle = "green";
-            ctx.font = "bold 60px Orbitron";
-            ctx.textAlign = "center";
             ctx.fillText("Champion!", canvas.width / 2, 50);
-            document.getElementById('restartBtn').style.display = 'inline-block';
         }
-        else{
-            if (timeLeft <= 0) {
-                if (score < 100) {
-                    gameOverSound.play();
-                    ctx.fillStyle = "orange";
-                    ctx.font = "bold 30px Orbitron";
-                    ctx.textAlign = "center";
-                    ctx.fillText(`You can do better! score: ${score}`, canvas.width / 2, 50);
-                }
-                else{
-                    winGameSound.play();
-                    ctx.fillStyle = "green";
-                    ctx.font = "bold 30px Orbitron";
-                    ctx.textAlign = "center";
-                    ctx.fillText(`Winner!`, canvas.width / 2, 50);
-                }
-            }
-        }
-        // // Draw score history after message
-        // if (gameOver) {
-        //     // === Score History Table ===
-        //     if (scoreHistoryList.length > 0) {
-        //         const listX = canvas.width / 2;
-        //         const listTop = 80; 
-        //         const lineHeight = 24;
-
-        //         ctx.textAlign = "center";
-        //         ctx.fillStyle = "black";
-        //         ctx.font = "20px monospace";
-        //         ctx.fillText("Top Scores:", listX, listTop);
-
-        //         ctx.font = "16px monospace";
-        //         scoreHistoryList.slice(0, 25).forEach((entry, i) => {
-        //             let isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
-        //             ctx.fillStyle = isLatest ? "gold" : "black";
-        //             ctx.fillText(`#${i + 1}: ${entry.score}`, listX, listTop + 30 + i * lineHeight);
-        //         });
-        //     }
-        // }
-
-        // Draw score history with timestamp
-        // Draw score history after message
-        if (gameOver) {
-            // === Score History Table ===
-            if (scoreHistoryList.length > 0) {
-                const listX = canvas.width / 2;
-                const listTop = 100;
-                const lineHeight = 22;
-
-                ctx.textAlign = "center";
-                ctx.fillStyle = "#333"; // Dark gray
-                ctx.font = "bold 24px 'Segoe UI', 'Roboto', sans-serif";
-                ctx.fillText("🏆 Top Scores 🏆", listX, listTop);
-
-                ctx.font = "16px 'Segoe UI', 'Roboto', sans-serif";
-
-                scoreHistoryList.slice(0, 10).forEach((entry, i) => {
-                    const date = new Date(entry.timestamp);
-                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                    const isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
-
-                    ctx.fillStyle = isLatest ? "gold" : "black"; // Orange for latest, dark gray for others
-                    ctx.font = isLatest ? "bold 16px 'Segoe UI', 'Roboto', sans-serif" : "16px 'Segoe UI', 'Roboto', sans-serif";
-
-                    ctx.fillText(`#${i + 1}:     ${entry.score}     ${formattedDate}`, listX, listTop + 40 + i * lineHeight);
-                });
+        else if (timeLeft <= 0) {
+            if (score < 100) {
+                gameOverSound.play();
+                ctx.fillStyle = "orange";
+                ctx.font = "bold 40px Orbitron"; // smaller font for long text
+                ctx.fillText(`You can do better! Score: ${score}`, canvas.width / 2, 50);
+            } else {
+                winGameSound.play();
+                ctx.fillStyle = "green";
+                ctx.font = "bold 50px Orbitron";
+                ctx.fillText("Winner!", canvas.width / 2, 50);
             }
         }
 
-
+        // Draw Top Scores below
+        drawTopScores();
     }
-    
 }
 
 
