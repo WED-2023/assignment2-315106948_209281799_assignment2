@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const guestUsername = 'p';
             const guestPassword = 'testuser';
             if (username === guestUsername && password === guestPassword) {
-                // alert('Welcome back, Guest!');
+                alert('Welcome back, Guest!');
                 showScreen('config_page');
                 return;
             }
@@ -235,8 +235,17 @@ let enemySpacing = 20;
 let enemyDirection = 1; // 1 = right, -1 = left
 let enemySpeed = 1;
 
-const badShipImg = new Image();
-badShipImg.src = 'images/badShip.png';
+const badShipBlueImg = new Image();
+badShipBlueImg.src = 'images/badshipblue.png';
+
+const badShipRedImg = new Image();
+badShipRedImg.src = 'images/badshipred.png';
+
+const badShipGreenImg = new Image();
+badShipGreenImg.src = 'images/badshipgreen.png';
+
+const badShipBlackImg = new Image();
+badShipBlackImg.src = 'images/badshipblack.png';
 
 const badBulletImg = new Image();
 badBulletImg.src = 'images/bad_bullet.png';
@@ -304,11 +313,11 @@ function resetGame() {
 
 function initEnemies() {
     enemies = [];
-    const baseWidth = 40; 
-    const baseHeight = 25;
+    const baseWidth = 50; //40; 
+    const baseHeight = 35; //25;
     const spacing = enemySpacing; 
     for (let row = 0; row < enemyRows; row++) {
-        let scaleFactor = 1 + (row * 0.3); 
+        let scaleFactor = 1 // + (row * 0.1); 
         let currentWidth = baseWidth * scaleFactor;
         let currentHeight = baseHeight * scaleFactor;
         
@@ -355,7 +364,8 @@ function shootFromRandomEnemy() {
         y: randomEnemy.y + randomEnemy.height,
         width: 20,
         height: 20,
-        speed: 4
+        speed: 4,
+        directionX: Math.random() < 0.5 ? 1 : -1
     });
 }
 
@@ -378,7 +388,16 @@ function updateScoreHistory() {
 
     const newEntry = { score: score, timestamp: new Date().toISOString() };
     history.push(newEntry);
-    history.sort((a, b) => b.score - a.score); // high-to-low
+    // Sort history by score (high to low)
+    // history.sort((a, b) => b.score - a.score); // high-to-low
+
+    // sort by score and timestamp
+    history.sort((a, b) => {
+        if (b.score === a.score) {
+            return new Date(b.timestamp) - new Date(a.timestamp); // sort by timestamp if scores are equal
+        }
+        return b.score - a.score; // high-to-low
+    });
 
     localStorage.setItem(historyKey, JSON.stringify(history));
 
@@ -488,6 +507,14 @@ function update() {
 
     // Move enemy bullets
     for (let bullet of enemyBullets) {
+        // only move on the Y axis
+        // bullet.y += bullet.speed;
+
+        // add move with random diagonal:        
+        // Set a random speed for the horizontal direction (you can adjust the range)
+        bullet.x += bullet.speed * bullet.directionX * 0.5;  // Move in x-direction (left or right)
+
+        // Move vertically downwards (you can adjust the speed for this too)
         bullet.y += bullet.speed;
     }
 
@@ -585,7 +612,18 @@ function draw() {
     ctx.drawImage(playerShipImg, player.x, player.y, player.width, player.height);
 
     for (let enemy of enemies) {
-        ctx.drawImage(badShipImg, enemy.x, enemy.y, enemy.width, enemy.height);
+        if (enemy.row === 0) {
+            ctx.drawImage(badShipBlackImg, enemy.x, enemy.y, enemy.width, enemy.height);
+        }
+        else if (enemy.row === 1) {
+            ctx.drawImage(badShipRedImg, enemy.x, enemy.y, enemy.width, enemy.height);
+        } 
+        else if (enemy.row === 2) {
+            ctx.drawImage(badShipBlueImg, enemy.x, enemy.y, enemy.width, enemy.height);
+        } 
+        else {
+            ctx.drawImage(badShipGreenImg, enemy.x, enemy.y, enemy.width, enemy.height);
+        }
     }
     
     // Draw player bullets
@@ -649,27 +687,59 @@ function draw() {
                 }
             }
         }
+        // // Draw score history after message
+        // if (gameOver) {
+        //     // === Score History Table ===
+        //     if (scoreHistoryList.length > 0) {
+        //         const listX = canvas.width / 2;
+        //         const listTop = 80; 
+        //         const lineHeight = 24;
+
+        //         ctx.textAlign = "center";
+        //         ctx.fillStyle = "black";
+        //         ctx.font = "20px monospace";
+        //         ctx.fillText("Top Scores:", listX, listTop);
+
+        //         ctx.font = "16px monospace";
+        //         scoreHistoryList.slice(0, 25).forEach((entry, i) => {
+        //             let isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
+        //             ctx.fillStyle = isLatest ? "gold" : "black";
+        //             ctx.fillText(`#${i + 1}: ${entry.score}`, listX, listTop + 30 + i * lineHeight);
+        //         });
+        //     }
+        // }
+
+        // Draw score history with timestamp
         // Draw score history after message
         if (gameOver) {
             // === Score History Table ===
             if (scoreHistoryList.length > 0) {
                 const listX = canvas.width / 2;
-                const listTop = 80; 
-                const lineHeight = 24;
+                const listTop = 100;
+                const lineHeight = 22;
 
                 ctx.textAlign = "center";
-                ctx.fillStyle = "black";
-                ctx.font = "20px monospace";
-                ctx.fillText("Top Scores:", listX, listTop);
+                ctx.fillStyle = "#333"; // Dark gray
+                ctx.font = "bold 24px 'Segoe UI', 'Roboto', sans-serif";
+                ctx.fillText("🏆 Top Scores 🏆", listX, listTop);
 
-                ctx.font = "16px monospace";
-                scoreHistoryList.slice(0, 25).forEach((entry, i) => {
-                    let isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
-                    ctx.fillStyle = isLatest ? "gold" : "black";
-                    ctx.fillText(`#${i + 1}: ${entry.score}`, listX, listTop + 30 + i * lineHeight);
+                ctx.font = "16px 'Segoe UI', 'Roboto', sans-serif";
+
+                scoreHistoryList.slice(0, 10).forEach((entry, i) => {
+                    const date = new Date(entry.timestamp);
+                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    const isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
+
+                    ctx.fillStyle = isLatest ? "gold" : "black"; // Orange for latest, dark gray for others
+                    ctx.font = isLatest ? "bold 16px 'Segoe UI', 'Roboto', sans-serif" : "16px 'Segoe UI', 'Roboto', sans-serif";
+
+                    ctx.fillText(`#${i + 1}:     ${entry.score}     ${formattedDate}`, listX, listTop + 40 + i * lineHeight);
                 });
             }
         }
+
+
     }
     
 }
