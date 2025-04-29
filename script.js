@@ -351,7 +351,6 @@ function resetGame() {
     startTime = null;
     timeLeft = gameConfig.timeLimit * 60; // in seconds
 }
-// >>>>>>> main
 
 
 function initEnemies() {
