@@ -820,18 +820,23 @@ function drawTopScores() {
     }
 }
 
+const backgroundImg = new Image();
+backgroundImg.src = 'images/space_background.jpg';
+
+
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
 
     ctx.fillStyle = "white";
-    ctx.font = "20px Rajdhani";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    ctx.fillText(`Lives: ${lives}`, 20, 20);
-    ctx.fillText(`Score: ${score}`, 20, 50);
-
+    ctx.font = "15px Orbitron";
     ctx.textAlign = "right";
+    ctx.textBaseline = "top";
+    ctx.fillText(`Lives: ${lives}`,  canvas.width - 20, 80);
+    ctx.fillText(`Score: ${score}`,  canvas.width - 20, 50);
+
+    // ctx.textAlign = "right";
     ctx.fillText(`Time: ${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`, canvas.width - 20, 20);
 
     ctx.textAlign = "left"; // reset for other draws
