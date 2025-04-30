@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // clear the local storage:
+    localStorage.clear();
     // Navigation Menu
     const links = document.querySelectorAll('#menu a');
     const sections = document.querySelectorAll('#content > div');
