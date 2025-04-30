@@ -12,7 +12,7 @@ In this project, we built a full HTML5/JavaScript/CSS3 game from scratch.
 - Configure game settings, such as the shooting key, game time and player spaceship design.
 - Play an arcade-style shooting game where the player controls a spaceship, shoots enemy spaceships, and avoids enemy bullets.
 - Earn points by shooting enemies, with different points for different enemy rows.
-- Track maximum top 10 high scores across game sessions (saved in localStorage).
+- Track maximum top 10 high scores across game sessions (saved in localStorage, for register users).
 - Experience game music and sound effects for shooting, hits, winning, and losing.
 - Restart or quit the game anytime.
 - View an About modal that explains the game features.
