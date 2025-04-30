@@ -821,7 +821,7 @@ function drawTopScores() {
 }
 
 const backgroundImg = new Image();
-backgroundImg.src = 'images/space_background.jpg';
+backgroundImg.src = 'images/background_spcace.jpg';
 
 
 
