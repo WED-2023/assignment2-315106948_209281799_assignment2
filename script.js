@@ -374,7 +374,9 @@ function initEnemies() {
                 y: 50 + row * (currentHeight + spacing),
                 width: currentWidth,
                 height: currentHeight,
-                row: row 
+                row: row ,
+                dx: enemySpeed * enemyDirection,
+                dy: 0.3
             });
             // enemies.push({
             //     x: 100 + col * (enemyWidth + enemySpacing),
@@ -524,21 +526,35 @@ function update() {
     // ---- Move enemies ----:
     let shouldReverse = false;
 
+    // for (let enemy of enemies) {
+    //     if (enemy.x + enemy.width >= canvas.width || enemy.x <= 0) {
+    //         shouldReverse = true;
+    //         break;
+    //     }
+    // }
+
     for (let enemy of enemies) {
         if (enemy.x + enemy.width >= canvas.width || enemy.x <= 0) {
-            shouldReverse = true;
-            break;
+            enemy.dx *= -1; // reverse horizontal direction
+        }
+        if (enemy.y <= 0 || enemy.y + enemy.height >= canvas.height * 0.5) {
+            enemy.dy *= -1; // reverse vertical direction
         }
     }
+    
 
     // If we need to reverse, do it before moving
     if (shouldReverse) {
         enemyDirection *= -1;
     }
 
-    // Now move all enemies in the same direction
+    // // Now move all enemies in the same direction
+    // for (let enemy of enemies) {
+    //     enemy.x += enemySpeed * enemyDirection;
+    // }
     for (let enemy of enemies) {
-        enemy.x += enemySpeed * enemyDirection;
+        enemy.x += enemy.dx;
+        enemy.y += enemy.dy;
     }
 
     // ---- Enemy shooting ----:
@@ -555,10 +571,10 @@ function update() {
         // bullet.y += bullet.speed;
 
         // add move with random diagonal:        
-        // Set a random speed for the horizontal direction (you can adjust the range)
+        // Set a random speed for the horizontal direction 
         bullet.x += bullet.speed * bullet.directionX * 0.5;  // Move in x-direction (left or right)
 
-        // Move vertically downwards (you can adjust the speed for this too)
+        // Move vertically downwards 
         bullet.y += bullet.speed;
     }
 
@@ -641,163 +657,6 @@ function update() {
 
 }
 
-// function draw() {
-//     // Clear the canvas
-//     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-//     // Show lives
-//     ctx.textBaseline = "top"; 
-//     ctx.textAlign = "left"; 
-//     ctx.fillStyle = "white";
-//     ctx.font = "20px Rajdhani";
-//     // ctx.bold = true;
-//     ctx.fillText(`Lives: ${lives}`, 20, 20);
-//     // Show score
-//     ctx.fillText(`Score: ${score}`, 20, 40);
-
-//     ctx.textAlign = "right";
-//     // Show time left
-//     ctx.fillText(`Time: ${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`, canvas.width - 50, 20);
-    
-    
-
-//     // Draw the player spaceship (rectangle for now)
-//     // const playerShipImg = new Image();
-//     // playerShipImg.src = player.shipImageSrc || 'images/spaceship1.png'; // Default fallback
-
-//     ctx.drawImage(playerShipImg, player.x, player.y, player.width, player.height);
-
-//     for (let enemy of enemies) {
-//         if (enemy.row === 0) {
-//             ctx.drawImage(badShipBlackImg, enemy.x, enemy.y, enemy.width, enemy.height);
-//         }
-//         else if (enemy.row === 1) {
-//             ctx.drawImage(badShipRedImg, enemy.x, enemy.y, enemy.width, enemy.height);
-//         } 
-//         else if (enemy.row === 2) {
-//             ctx.drawImage(badShipBlueImg, enemy.x, enemy.y, enemy.width, enemy.height);
-//         } 
-//         else {
-//             ctx.drawImage(badShipGreenImg, enemy.x, enemy.y, enemy.width, enemy.height);
-//         }
-//     }
-    
-//     // Draw player bullets
-//     for (let bullet of playerBullets) {
-//         ctx.drawImage(goodBulletImg, bullet.x, bullet.y, bullet.width, bullet.height);
-//     }
-
-//     // Draw enemy bullets
-//     for (let bullet of enemyBullets) {
-//         ctx.drawImage(badBulletImg, bullet.x, bullet.y, bullet.width, bullet.height);
-//     }
-    
-
-//     // Win/Lose conditionsz
-//     if (!gameOver) {
-//         // if we reach game over condition:
-//         if (lives <= 0 || enemies.length === 0 || timeLeft <= 0) {
-//             // stop background music
-//             if (backgroundMusic && !backgroundMusic.paused) {
-//                 backgroundMusic.pause();
-//                 backgroundMusic.currentTime = 0;
-//             }
-//             // clear canvas
-//             ctx.clearRect(0, 0, canvas.width, canvas.height);
-//             gameOver = true;
-//             updateScoreHistory();
-//         }
-
-//         if (lives <= 0) {
-//             gameOverSound.play();
-//             ctx.fillStyle = "red";
-//             ctx.font = "bold 60px Orbitron";
-//             ctx.textAlign = "center";
-//             ctx.fillText("You Lost!", canvas.width / 2, 50);
-//             // document.getElementById('restartBtn').style.display = 'inline-block';
-//         } 
-        
-//         else if (enemies.length === 0) {
-//             winGameSound.play();
-//             ctx.fillStyle = "green";
-//             ctx.font = "bold 60px Orbitron";
-//             ctx.textAlign = "center";
-//             ctx.fillText("Champion!", canvas.width / 2, 50);
-//             // document.getElementById('restartBtn').style.display = 'inline-block';
-//         }
-//         else{
-//             if (timeLeft <= 0) {
-//                 if (score < 100) {
-//                     gameOverSound.play();
-//                     ctx.fillStyle = "orange";
-//                     ctx.font = "bold 30px Orbitron";
-//                     ctx.textAlign = "center";
-//                     ctx.fillText(`You can do better! score: ${score}`, canvas.width / 2, 50);
-//                 }
-//                 else{
-//                     winGameSound.play();
-//                     ctx.fillStyle = "green";
-//                     ctx.font = "bold 30px Orbitron";
-//                     ctx.textAlign = "center";
-//                     ctx.fillText(`Winner!`, canvas.width / 2, 50);
-//                 }
-//             }
-//         }
-//         // // Draw score history after message
-//         // if (gameOver) {
-//         //     // === Score History Table ===
-//         //     if (scoreHistoryList.length > 0) {
-//         //         const listX = canvas.width / 2;
-//         //         const listTop = 80; 
-//         //         const lineHeight = 24;
-
-//         //         ctx.textAlign = "center";
-//         //         ctx.fillStyle = "black";
-//         //         ctx.font = "20px monospace";
-//         //         ctx.fillText("Top Scores:", listX, listTop);
-
-//         //         ctx.font = "16px monospace";
-//         //         scoreHistoryList.slice(0, 25).forEach((entry, i) => {
-//         //             let isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
-//         //             ctx.fillStyle = isLatest ? "gold" : "black";
-//         //             ctx.fillText(`#${i + 1}: ${entry.score}`, listX, listTop + 30 + i * lineHeight);
-//         //         });
-//         //     }
-//         // }
-
-//         // Draw score history with timestamp
-//         if (gameOver) {
-//             // === Score History Table ===
-//             if (scoreHistoryList.length > 0) {
-//                 const listX = canvas.width / 2;
-//                 const listTop = 130;
-//                 const lineHeight = 22;
-
-//                 ctx.textAlign = "center";
-//                 ctx.fillStyle = "#333"; // Dark gray
-//                 ctx.font = "bold 24px 'Segoe UI', 'Roboto', sans-serif";
-//                 ctx.fillText("🏆 Top Scores 🏆", listX, listTop);
-
-//                 ctx.font = "16px 'Segoe UI', 'Roboto', sans-serif";
-
-//                 scoreHistoryList.slice(0, 10).forEach((entry, i) => {
-//                     const date = new Date(entry.timestamp);
-//                     const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-//                     const isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
-
-//                     ctx.fillStyle = isLatest ? "gold" : "black"; // Orange for latest, dark gray for others
-//                     ctx.font = isLatest ? "bold 16px 'Segoe UI', 'Roboto', sans-serif" : "16px 'Segoe UI', 'Roboto', sans-serif";
-
-//                     ctx.fillText(`#${i + 1}:     ${entry.score}     ${formattedDate}`, listX, listTop + 40 + i * lineHeight);
-//                 });
-//             }
-//         }
-
-
-//     }
-    
-// }
 
 function drawTopScores() {
     if (scoreHistoryList.length > 0) {
