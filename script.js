@@ -1,6 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
     // clear the local storage:
     localStorage.clear();
+    // Ensure guest user exists
+    function initializeGuestUser() {
+        const users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+        const guestExists = users.some(u => u.username === 'p' && u.password === 'testuser');
+        if (!guestExists) {
+            users.push({
+                username: 'p',
+                password: 'testuser',
+                firstname: 'Guest',
+                surname: '',
+                email: 'guest@example.com',
+                birthdate: ''
+            });
+            localStorage.setItem('registeredUsers', JSON.stringify(users));
+        }
+    }
+    initializeGuestUser();
+
     // Navigation Menu
     const links = document.querySelectorAll('#menu a');
     const sections = document.querySelectorAll('#content > div');
@@ -58,8 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         
         validatePasswordMatch()
-        const user = {
-
+        const newUser = {
             username: document.getElementById('register_username').value,
             password: document.getElementById('register_password').value,
             confirmPassword: document.getElementById('confirm_password').value,
@@ -67,9 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             surname: document.getElementById('surname').value,
             email: document.getElementById('email').value,
             birthdate: document.getElementById('birthdate').value
-        };
-
-        
+        };     
         
         // built-in validity checks
         if (!form.checkValidity()) {
@@ -83,17 +98,28 @@ document.addEventListener('DOMContentLoaded', () => {
             confirmPassword.reportValidity(); // shows the bubble
             return;
         }
-        // Check if username/email already exist
-        const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
-        if (storedUser && (storedUser.username === user.username || storedUser.email === user.email)) {
-            document.getElementById('username').setCustomValidity('Username or email already exists.');
-            document.getElementById('username').reportValidity();
+        // // Check if username/email already exist
+        // const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
+        // if (storedUser && (storedUser.username === user.username || storedUser.email === user.email)) {
+        //     document.getElementById('username').setCustomValidity('Username or email already exists.');
+        //     document.getElementById('username').reportValidity();
+        //     return;
+        // }
+
+        // // Save to localStorage
+        // localStorage.setItem('registeredUser', JSON.stringify(user));
+
+        const users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+
+        if (users.some(u => u.username === newUser.username || u.email === newUser.email)) {
+            alert('Username or email already exists.');
             return;
         }
 
-        // Save to localStorage
-        localStorage.setItem('registeredUser', JSON.stringify(user));
-        // alert('Registration successful! Please log in.');
+        users.push(newUser);
+        localStorage.setItem('registeredUsers', JSON.stringify(users));
+
+        alert('Registration successful! Please log in.');
         showScreen('login_page');
     });
 
@@ -101,26 +127,37 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('login_form').addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
+        // const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
 
         const username = this.username.value;
         const password = this.password.value;
 
-        if (storedUser && storedUser.username === username && storedUser.password === password) {
-            alert(`Welcome back, ${storedUser.firstname}!`);
+        const users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+        const foundUser = users.find(u => u.username === username && u.password === password);
+
+        // if (storedUser && storedUser.username === username && storedUser.password === password) {
+        //     alert(`Welcome back, ${storedUser.firstname}!`);
+        //     showScreen('config_page');
+        // } else {
+        //     // check if it's a guest login
+        //     const guestUsername = 'p';
+        //     const guestPassword = 'testuser';
+        //     if (username === guestUsername && password === guestPassword) {
+        //         alert('Welcome back, Guest!');
+        //         showScreen('config_page');
+        //         return;
+        //     }
+        //     else{
+        //         alert('Invalid username or password.');
+        //     }
+        // }
+
+        if (foundUser) {
+            localStorage.setItem('lastLoggedInUser', JSON.stringify(foundUser));
+            alert(`Welcome back, ${foundUser.firstname || foundUser.username}!`);
             showScreen('config_page');
         } else {
-            // check if it's a guest login
-            const guestUsername = 'p';
-            const guestPassword = 'testuser';
-            if (username === guestUsername && password === guestPassword) {
-                alert('Welcome back, Guest!');
-                showScreen('config_page');
-                return;
-            }
-            else{
-                alert('Invalid username or password.');
-            }
+            alert('Invalid username or password.');
         }
     });
 
@@ -227,9 +264,7 @@ document.getElementById('config_form').addEventListener('submit', function (e) {
     };
 
     // Apply config
-    // player.color = color;
     player.shipImageSrc = selectedShipImage;
-
 
     showScreen('game_page');
     setupGame(); // start the game when config is done
@@ -426,10 +461,16 @@ function checkCollision(rect1, rect2) {
 
 // Function to handle game score history
 function updateScoreHistory() {
-    const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
-    if (!storedUser || !storedUser.username) return;
+    // const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
+    // if (!storedUser || !storedUser.username) return;
 
-    const historyKey = `scoreHistory_${storedUser.username}`;
+    // const historyKey = `scoreHistory_${storedUser.username}`;
+    // let history = JSON.parse(localStorage.getItem(historyKey)) || [];
+
+    const currentUser = JSON.parse(localStorage.getItem('lastLoggedInUser'));
+    if (!currentUser || !currentUser.username) return;
+
+    const historyKey = `scoreHistory_${currentUser.username}`;
     let history = JSON.parse(localStorage.getItem(historyKey)) || [];
 
     const newEntry = { score: score, timestamp: new Date().toISOString() };
@@ -659,7 +700,14 @@ function update() {
 
 
 function drawTopScores() {
-    if (scoreHistoryList.length > 0) {
+    const currentUser = JSON.parse(localStorage.getItem('lastLoggedInUser'));
+    if (!currentUser || !currentUser.username) return;
+
+    const history = JSON.parse(localStorage.getItem(`scoreHistory_${currentUser.username}`)) || [];
+
+    // if (scoreHistoryList.length > 0) {
+    if (history.length > 0) {
+
         const listX = canvas.width / 2;
         const listTop = 130;
         const lineHeight = 26;
@@ -670,7 +718,8 @@ function drawTopScores() {
 
         ctx.font = "16px 'Segoe UI', 'Roboto', sans-serif";
 
-        scoreHistoryList.slice(0, 10).forEach((entry, i) => {
+        // scoreHistoryList.slice(0, 10).forEach((entry, i) => {
+        history.slice(0, 10).forEach((entry, i) => {
             const date = new Date(entry.timestamp);
             const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             const isLatest = entry.timestamp === scoreHistoryList.latestTimestamp;
